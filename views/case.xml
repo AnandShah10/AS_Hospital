@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Appointment Record-->
+    <record id="action_open_appointment" model="ir.actions.act_window">
+        <field name="name">Appointments</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="domain">[('c_ids','=',active_id)]</field>
+        <field name="context">{}</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <!--Case Form View-->
+    <record id="view_hospital_case_form" model="ir.ui.view">
+        <field name="name">hospital.case.form</field>
+        <field name="model">hospital.case</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="get_chatter_activity" string="Activities"
+                            type="object" class="btn-primary" icon="fa-tasks"
+                            groups="as_hospital.group_hospital_admin"/>
+                    <button name="change_state" type="object" help="Change Case State"
+                            icon="fa-forward" track_visibility="always" string="State"
+                            id="button_state_change" class="btn-primary oe_highlight"
+                            groups="as_hospital.group_hospital_admin,
+                            as_hospital.group_hospital_manager,
+                            as_hospital.group_hospital_doctor"/>
+                    <button name="case_paid" type="object" icon="fa-check-circle" string="Payment"
+                            help="Verify Payment" track_visibility="always"
+                            id="button_is_paid_change" class="btn-primary oe_highlight"
+                            groups="as_hospital.group_hospital_admin,
+                            as_hospital.group_hospital_manager"/>
+                    <button name="print_case_report" help="Print Pdf Report"
+                            track_visibility="always" string="PDF"
+                            confirm='Do you want to print a report?' type="object"
+                            class="btn-primary" icon="fa-file-pdf-o"/>
+                    <button name="print_case_report_xlsx" help="Print Excel Report"
+                            track_visibility="always" string="Excel"
+                            confirm='Do you want to print a report?' type="object"
+                            class="btn-primary" icon="fa-file-excel-o"/>
+                    <button name="print_case_report_preview" help="Preview Report"
+                            track_visibility="always" string="Preview"
+                            type="object" class="btn-primary" icon="fa-eye"/>
+                    <button name="mail_case" type="object" data-hotkey="m"
+                            track_visibility="always" string="Mail"
+                            icon="fa-envelope" help="Send Email"
+                            class="oe_highlight"
+                            groups="as_hospital.group_hospital_admin,
+                            as_hospital.group_hospital_manager,
+                            as_hospital.group_hospital_doctor"/>
+                    <button name="send_email_with_attachment" type="object" data-hotkey="m"
+                            track_visibility="always" string="Attached Mail"
+                            icon="fa-send" help="Send Email with attachment"
+                            groups="as_hospital.group_hospital_admin,
+                            as_hospital.group_hospital_manager,
+                            as_hospital.group_hospital_doctor"
+                            class="oe_highlight"/>
+                    <button name="archive_case_record" icon="fa-archive" help="Archive Case"
+                            track_visibility="always" string="Archive"
+                            groups="as_hospital.group_hospital_admin,
+                            as_hospital.group_hospital_manager"
+                            type="object" class="btn-primary" invisible="not active"/>
+                    <button name="archive_case_record" icon="fa-undo" help="Unarchive Case"
+                            track_visibility="always" string="Unarchive"
+                            groups="as_hospital.group_hospital_admin,
+                            as_hospital.group_hospital_manager"
+                            type="object" class="btn-primary" invisible="active"/>
+                    <button name="print_payment_receipt" type="object" icon="fa-money"
+                            string="Receipt"
+                            help="Payment Receipt" track_visibility="always"
+                            id="button_receipt_pdf" class="btn-primary oe_highlight"/>
+                    <button name="preview_payment_receipt" type="object" icon="fa-ticket"
+                            string="Receipt Preview"
+                            help="Payment Receipt Preview" track_visibility="always"
+                            id="button_receipt_pdf" class="btn-primary oe_highlight"/>
+                    <button name="send_on_whatsapp" type="object" icon="fa-whatsapp"
+                            string="Message on whatsapp" track_visibility="always"
+                            help="Send message on whatsapp" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" options="{'clickable':1}"
+                           statusbar_visible="1,2,3,4,5,6"/>
+
+                </header>
+
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(as_hospital.action_open_appointment)d" type="action"
+                                class="oe_stat_button" icon="fa-calendar">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Appointments
+                                </span>
+                                <field name="a_ids" widget="statinfo" nolabel="1" class="o_stat_value"/>
+                            </div>
+                        </button>
+
+                    </div>
+                    <widget name="web_ribbon" title="Paid" bg_color="text-bg-success"
+                            invisible="not is_paid"/>
+                    <widget name="web_ribbon" title="Canceled" bg_color="text-bg-warning"
+                            invisible="not (state=='1')"/>
+                    <widget name="web_ribbon" title="Postponed" bg_color="text-bg-primary"
+                            invisible="not (state=='2')"/>
+                    <widget name="web_ribbon" title='Deleted' bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <group>
+                        <div style="text-align:left">
+                            <h1>
+                                <field name="c_id" string="Case ID"/>
+                            </h1>
+                            <br/>
+                            <field name="criticality" string="Criticality"/>
+                            <field name="active" invisible="1"/>
+                        </div>
+                        <div style="text-align:right">
+                            <field name="p_image" nolabel="1" widget="image" class="oe_avatar"/>
+                        </div>
+                        <separator/>
+                        <group string="Admission Info">
+                            <field name="admission_date"
+                                   invisible="not is_admitted"/>
+                            <field name="discharge_date"
+                                   invisible="(not is_admitted) or
+                                    (state == '2' or state == '3' or state == '4')"/>
+                            <field name="final_total" optional="show"/>
+                            <field name="is_admitted"/>
+                            <field name="is_paid" invisible="1"/>
+                            <field name="c_notes" string="Case Notes"/>
+                        </group>
+                        <group string="Doctor Fees">
+                            <!--                            <field name="currency"/>-->
+                            <field name="fees"/>
+                            <field name="fee_tax"/>
+                            <field name="total_fee"/>
+                        </group>
+
+                        <group invisible="(is_admitted==False) or
+                        (state == '2' or state == '3' or state == '4')">
+                            <group string="Room">
+                                <field name="duration"/>
+                                <field name="room_type" string="Room Type:"/>
+
+                            </group>
+                            <group string="Room Fees">
+                                <field name="room_price" string="Room Price"/>
+                                <field name="total_charge"/>
+                                <field name="room_tax"/>
+                                <field name="total_room_charge"/>
+                            </group>
+                        </group>
+                        <group string="History">
+                            <field name="m_notes"/>
+                            <field name="prev_illness"/>
+                            <field name="curr_illness"/>
+                            <field name="progress_rate"/>
+                        </group>
+
+                    </group>
+                    <notebook>
+                        <page string="Patient Info">
+                            <group>
+                                <group>
+                                    <field name="c_ids" help="Enter your name here." string="Name:"/>
+                                    <field name="p_id" string="Patient Id"/>
+                                    <field name="p_age"/>
+                                    <field name="p_gender"/>
+                                </group>
+                                <group>
+                                    <field name="p_is_child"/>
+                                    <field name="p_blood_group"/>
+                                    <field name="p_mob"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Doctor Info">
+                            <group>
+                                <group string="Info">
+                                    <field name="doctor" string="Doctor Name"
+                                           domain="[('doctor','ilike','dr.')]" widget="many2one"/>
+                                    <field name="d_id"/>
+                                    <field name="d_gender"/>
+                                </group>
+                                <group string="Contact">
+                                    <field name="d_email" string="Doctor Email"/>
+                                    <field name="doc_mob"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Appointment Info">
+                            <group>
+                                <field name="a_ids" widget="one2many_list">
+                                    <tree>
+                                        <field name="a_id"/>
+                                        <field name="appointment_date"/>
+                                    </tree>
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="a_id"
+                                                       string="Appointment ID"/>
+                                            </group>
+                                            <group>
+                                                <field name="appointment_date"
+                                                       string="Appointment date"/>
+                                            </group>
+                                        </group>
+                                    </form>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Medicine">
+                            <group>
+                                <field name="prescription_ids">
+                                    <tree>
+                                        <field name="name" string="Medication"/>
+                                        <field name="quant" string="Quantity"/>
+                                        <field name="price" string="Price"/>
+                                        <field name="total" string="Total"/>
+                                    </tree>
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="name" string="Medication"/>
+                                            </group>
+                                            <group>
+                                                <field name="quant" string="Quantity"/>
+                                            </group>
+                                            <group>
+                                                <field name="price" string="Price"/>
+                                            </group>
+                                            <group>
+                                                <field name="total" string="Total"/>
+                                            </group>
+
+
+                                        </group>
+                                    </form>
+                                </field>
+                            </group>
+
+                            <group style="text-align:right;float:right">
+                                <field name="total_price"/>
+                                <field name="tax"/>
+                                <field name="tax_total"
+                                       style="border-top:1px solid #D3D3D3"/>
+                            </group>
+
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" options="{'post_refresh': 'recipients'}"
+                           widget="mail_thread"/>
+
+                </div>
+            </form>
+        </field>
+    </record>
+    <!--    <record id="view_hospital_case_chatter_inherit" model="ir.ui.view">-->
+    <!--        <field name="name">hospital.case.chatter.inherit</field>-->
+    <!--        <field name="model">hospital.case</field>-->
+    <!--        <field name="inherit_id" ref="as_hospital.view_hospital_case_form"/>-->
+    <!--        <field name="arch" type="xml">-->
+    <!--            <xpath expr="//span[@class='o-mail-Chatter-topbarGrow flex-grow-1 pe-2']" position="after">-->
+    <!--                <button name="get_chatter_activity" string="Get Activities" type="object"-->
+    <!--                        icon="fa-tasks" class="oe_stat_button" widget="statinfo">-->
+    <!--                </button>-->
+    <!--            </xpath>-->
+    <!--        </field>-->
+    <!--    </record>-->
+
+    <!--    <template id="view_hospital_case_chatter_inherit">-->
+    <!--        <t t-inherit="mail.Chatter" t-inherit-mode="extension">-->
+    <!--            <xpath expr="//span[@class='o-mail-Chatter-topbarGrow flex-grow-1 pe-2']" position="after">&ndash;&gt;-->
+    <!--                <button name="get_chatter_activity" string="Get Activities" type="object"-->
+    <!--                        icon="fa-tasks" class="oe_stat_button">-->
+    <!--                </button>-->
+    <!--            </xpath>-->
+    <!--        </t>-->
+    <!--        <t t-extend="mail.Chatter">-->
+    <!--        <t t-jquery="[div,span,button,etc].class_name" t-operation="[replace,after,before]">-->
+    <!--        <xpath expr="//button[@class='o-mail-Chatter-logNote btn text-nowrap me-1']" position="after">-->
+    <!--            <h1>Hello World</h1>-->
+    <!--            <button name="as_hospital.get_chatter_activity" string="Get Activities" type="object"-->
+    <!--                    icon="fa-tasks" class="btn btn-light btn-outline-dark">Get Activities-->
+    <!--            </button>-->
+    <!--        </xpath>-->
+    <!--        </t>-->
+    <!--        </t>-->
+    <!--    </template>-->
+
+    <!--  Case Tree View-->
+    <record id="view_hospital_case_tree" model="ir.ui.view">
+        <field name="name">hospital.doctor.case</field>
+        <field name="model">hospital.case</field>
+        <field name="arch" type="xml">
+            <tree duplicate='0' multi_edit="1"
+                  decoration-success="state == '4'"
+                  decoration-info="state == '3'"
+                  decoration-danger="state == '5'"
+                  decoration-warning="state == '1'"
+                  decoration-muted="state == '6'"
+                  decoration-primary="state == '2'">
+                <field name="c_id" optional="show" widget="handle"/>
+                <field name="c_notes" optional="hide"/>
+                <field name="m_notes" optional="hide"/>
+                <field name="criticality" optional="show"/>
+                <field name="prev_illness" optional="hide"/>
+                <field name="curr_illness" optional="show"/>
+                <field name="admission_date" optional="show" invisible="not is_admitted"/>
+                <field name="discharge_date" optional="show" invisible="(not is_admitted) or
+                                    (state == '2' or state == '3' or state == '4')"/>
+                <field name="duration" optional="hide" invisible="(not is_admitted) or
+                                    (state == '2' or state == '3' or state == '4')"/>
+                <field name="fees" optional="hide"/>
+                <field name="room_type" optional="show" invisible="(not is_admitted) or
+                                    (state == '2' or state == '3' or state == '4')"/>
+                <field name="room_price" optional="hide" invisible="(not is_admitted) or
+                                    (state == '2' or state == '3' or state == '4')"/>
+                <field name="total_charge" optional="hide" invisible="(not is_admitted) or
+                                    (state == '2' or state == '3' or state == '4')"/>
+                <field name="currency" optional="hide" invisible="1"/>
+                <field name="doctor" optional="show" context="{'active_test':True}"/>
+                <field name="final_total" optional="show"/>
+                <field name="state" optional="show" widget="selection"/>
+                <field name="is_admitted" optional="hide" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--  Cases Kanban view-->
+    <record id="view_hospital_case_kanban" model="ir.ui.view">
+        <field name="name">hospital.case.kanban</field>
+        <field name="model">hospital.case</field>
+        <field name="arch" type="xml">
+            <kanban> <!--records_draggable="0"-->
+                <template>
+                    <widget name="web_ribbon" title="Canceled" bg_color="text-bg-danger" invisible="active"/>
+                    <t t-name="kanban-box">
+                        <field name="p_image" widget="image" nolabel="1"/>
+
+                        <div>
+                            <div class="oe_kanban_global_click">
+                                <strong>
+                                    <field name="c_id" string="Case ID:"/>
+                                </strong>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="p_name" string="Patient:"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="p_id" string="ID:"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>Age:
+                                    <field name="p_age" string="Age:"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>Gender:
+                                    <field name="p_gender" string="Gender:"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="active" invisible="1"/>
+                                </span>
+                            </div>
+                            <div>
+                                <field name="progress_rate" widget="progressbar"/>
+                            </div>
+                        </div>
+
+                    </t>
+                </template>
+
+            </kanban>
+        </field>
+    </record>
+
+    <!--   Cases Calander View-->
+    <record model="ir.ui.view" id="view_hospital_case_calendar">
+        <field name="name">hospital.case.calendar</field>
+        <field name="model">hospital.case</field>
+        <field name="arch" type="xml">
+            <calendar string="Admission Calendar" date_start="admission_date" mode="month" color="p_name"
+                      event_open_popup="true">
+                <field name="p_name"/>
+                <field name="p_id"/>
+                <field name="p_age"/>
+                <field name="p_gender"/>
+                <field name="p_is_child"/>
+                <field name="p_image" widget="image"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!--   Cases Pivot Views-->
+    <record id="view_hospital_case_pivot" model="ir.ui.view">
+        <field name="name">hospital.case.pivot</field>
+        <field name="model">hospital.case</field>
+        <field name="arch" type="xml">
+            <pivot string="Pivot">
+                <field name="c_id" type="col"/>
+                <field name="admission_date" type="row" interval="day"/>
+                <field name="discharge_date" type="row" interval="day"/>
+
+            </pivot>
+        </field>
+    </record>
+
+    <!--    Cases Graph View-->
+    <record id="view_hospital_case_graph" model="ir.ui.view">
+        <field name="name">hospital.case.graph</field>
+        <field name="model">hospital.case</field>
+        <field name="arch" type="xml">
+            <graph type="pie">
+                <field name="duration"/>
+                <field name="final_total" type="measure"/>
+                <field name="fees"/>
+            </graph>
+        </field>
+    </record>
+
+    <!--  cases Search View-->
+    <record id="view_hospital_case_search" model="ir.ui.view">
+        <field name="name">hospital.case.search</field>
+        <field name="model">hospital.case</field>
+        <field name="arch" type="xml">
+            <search string="Search cases">
+                <field name="c_id" filter_domain="[('c_id','ilike',self)]"/>
+                <field name="p_id" filter_domain="[('p_id','ilike',self)]"/>
+                <field name="p_name" filter_domain="[('p_name','ilike',self)]"/>
+                <field name="p_age" filter_domain="[('p_age','>',self)]"/>
+                <field name="criticality" filter_domain="[('criticality','ilike',self)]"/>
+                <field name="doctor" filter_domain="[('doctor','ilike',self)]"/>
+                <field name="d_id" filter_domain="[('d_id','ilike',self)]"/>
+                <separator/>
+                <filter name="is_paid" string="Paid" domain="[('is_paid','=',True)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <filter string="Male" name="male" domain="[('p_gender','=','male')]"/>
+                <filter string="Female" name="female" domain="[('p_gender','=','female')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Criticality" name="criticality" context="{'group_by':'criticality'}"/>
+                </group>
+                <searchpanel>
+                    <field name="criticality" enable_counters="0" icon="fa-file" color="red"
+                           select="multi"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <!-- Case Record-->
+    <record id="action_hospital_case" model="ir.actions.act_window">
+        <field name="name">Cases</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.case</field>
+        <field name="context">{'search_default_p_age':18}</field> <!--Adding default filter-->
+        <field name="view_mode">kanban,tree,form,graph,pivot</field>
+    </record>
+
+    <!--    Admission Record-->
+    <record id="action_hospital_admission" model="ir.actions.act_window">
+        <field name="name">Admission</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.case</field>
+        <field name="view_mode">calendar,pivot</field>
+
+    </record>
+
+    <!--    Admission Menu-->
+    <menuitem id="menu_hospital_admission"
+              parent="menu_cases_root"
+              name="Admission"
+              sequence="7"
+              action="action_hospital_admission"/>
+
+    <!-- Case Menu-->
+    <menuitem id="menu_cases_root"
+              name="Case"
+              parent="menu_hospital_root"
+              sequence="20"
+              groups="group_hospital_manager,group_hospital_doctor,group_hospital_admin,group_hospital_patient"
+    />
+
+    <!-- Case Sub Menu-->
+    <menuitem id="menu_cases"
+              name="View Case"
+              parent="menu_cases_root"
+              action="action_hospital_case"
+              sequence="1"
+    />
+
+    <!--    Create Case Sub menu-->
+    <menuitem id="menu_create_case"
+              name="Create Case"
+              parent="menu_cases_root"
+              action="action_create_case_wizard"
+              sequence="2"
+    />
+    <!--    Cancel Case Sub menu-->
+    <menuitem id="menu_cancel_case"
+              name="Cancel Case"
+              parent="menu_cases_root"
+              action="action_cancel_case_wizard"
+              sequence="3"
+    />
+    <!--   Search Case Sub menu-->
+    <menuitem id="menu_search_case"
+              name="Search Case"
+              parent="menu_cases_root"
+              action="action_search_case_wizard"
+              sequence="4"
+    />
+    <!--  Archive Case Sub menu-->
+    <menuitem id="menu_archive_case"
+              name="Archive Case"
+              parent="menu_cases_root"
+              action="action_archive_case_wizard"
+              sequence='5'
+    />
+    <!-- Print Case Sub menu-->
+    <menuitem id="menu_print_case"
+              name="Print Case"
+              parent="menu_cases_root"
+              action="action_print_case_wizard"
+              sequence='6'
+    />
+</odoo>

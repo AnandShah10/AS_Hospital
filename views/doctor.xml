@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Case Record-->
+    <record id="action_open_case" model="ir.actions.act_window">
+        <field name="name">Cases</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.case</field>
+        <field name="domain">[('doctor','=',active_id)]</field>
+        <field name="context">{}</field>
+        <field name="view_mode">kanban,tree,form,graph,pivot</field>
+    </record>
+
+    <!-- Appointment Record-->
+    <record id="action_open_appointments" model="ir.actions.act_window">
+        <field name="name">Appointment</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="domain">[('c_ids.doctor','=',active_id)]</field>
+        <field name="context">{}</field>
+        <field name="view_mode">calendar,tree,form</field>
+    </record>
+
+    <!-- Schedule Record-->
+    <record id="doctor_schedule" model="ir.actions.act_window">
+        <field name="name">Scheduled Appointment</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="domain">[('c_ids.doctor','=',active_id),('appointment_date', '&gt;=', context_today())]</field>
+        <field name="context">{}</field>
+        <field name="view_mode">calendar,tree</field>
+    </record>
+
+    <!-- Patient Record-->
+    <record id="action_open_patients" model="ir.actions.act_window">
+        <field name="name">Patients</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.patient</field>
+        <field name="domain">[('doctor_ids','in',active_id)]</field>
+        <field name="context">{}</field>
+        <field name="view_mode">kanban,tree,form,graph,pivot</field>
+    </record>
+
+    <!--Doctor Form View-->
+    <record id="view_hospital_doctor_form" model="ir.ui.view">
+        <field name="name">hospital.doctor.form</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <form>
+                <button name="print_doctor_report"
+                        confirm='Do you want to print a report?' type="object"
+                        string="Print Report" class="btn-primary"/>
+                <button name="%(doctor_schedule)d" type="action" icon="fa-calendar-o"
+                        string="Schedule" class="btn-primary"/>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(as_hospital.action_open_case)d" type="action"
+                                class="oe_stat_button" icon="fa-list">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Cases
+                                </span>
+                                <field name="case_count" nolabel="1" class="o_stat_value" widget="statinfo"/>
+                            </div>
+                        </button>
+                        <button name="%(as_hospital.action_open_appointments)d" type="action"
+                                class="oe_stat_button" icon="fa-list">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Appointments
+                                </span>
+                                <field name="appointment_count" nolabel="1" class="o_stat_value" widget="statinfo"/>
+                            </div>
+                        </button>
+                        <button name="%(as_hospital.action_open_patients)d" type="action"
+                                class="oe_stat_button" icon="fa-user">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Patients
+                                </span>
+                                <field name="patient_ids" nolabel="1" class="o_stat_value" widget="statinfo"/>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Fired" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+
+                        <div style="text-align:left">
+                            <h1>
+                                <field name="doctor" help="Enter your name here."
+                                       placeholder="ENTER YOUR NAME"
+                                       nolabel="1" size="100"/>
+                            </h1>
+                            <br/>
+                            <field name="d_id"/>
+                            <field name="active" invisible="1"/>
+                            <field name="rating" widget="priority"/>
+                            <field name="specialist" widget="many2many_tags" string="Speciality"/>
+                            <field name="d_gender" required="1" placeholder='Choose Your Gender:'/>
+                        </div>
+
+                        <div style="text-align:right;">
+                            <field name="d_image" widget="image" class="oe_avatar"
+                                   style="height:500px,width:500px" nolabel="1"/>
+                        </div>
+
+                        <separator/>
+
+                        <group>
+                            <field name="d_dob"/>
+                            <field name="d_age"/>
+                            <field name="patient_ids" widget="many2many_avatar_user"/>
+                            <!--                                   options="{'color_field': 'color'}"/>-->
+                            <field name="exp"/>
+                            <field name="designation"/>
+                            <field name="qualifications"/>
+                            <field name="joining_date"/>
+                            <field name="leaving_date"
+                                   readonly="active==False"
+                                   invisible="active==True"
+                            />
+                        </group>
+                        <group>
+                            <field name="d_email" widget="email"/>
+                            <field name="doc_mob" widget="phone"/>
+                            <field name="salary" string="Salary"/>
+                            <field name="info"/>
+                            <field name="is_married"/>
+                        </group>
+                    </group>
+                </sheet>
+
+                <!--                <div class="oe_chatter">-->
+                <!--                    <field name="message_follower_ids"/>-->
+                <!--                    <field name="message_ids" options="{'post_refresh': 'recipients'}"/>-->
+                <!--                </div>-->
+
+            </form>
+        </field>
+    </record>
+
+    <!-- Doctor   Kanban View-->
+    <record id="view_hospital_doctor_kanban" model="ir.ui.view">
+        <field name="name">hospital.doctor.kanban</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <kanban>
+
+                <template>
+                    <t t-name="kanban-box">
+                        <div>
+                            <div class="o_kanban_image">
+                                <field name="d_image" widget="image"
+                                       nolabel="1" class="o_image_256_contain"
+                                       options="{'zoom':true,'zoom_delay':1000}"/>
+                            </div>
+                            <div class="oe_kanban_global_click">
+                                <div>Name:
+                                    <strong>
+                                        <field name="doctor"/>
+                                    </strong>
+                                </div>
+                                <div>ID:
+                                    <span>
+                                        <field name="d_id"/>
+                                    </span>
+                                </div>
+                                <div>Age:
+                                    <span>
+                                        <field name="d_age"/>
+                                    </span>
+                                </div>
+                                <div>Gender:
+                                    <span>
+                                        <field name="d_gender"/>
+                                    </span>
+                                </div>
+                                <div>Designation:
+                                    <span>
+                                        <field name="designation" widget="selection_badge"/>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span>
+                                        <field name="rating" widget="priority"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </template>
+
+            </kanban>
+        </field>
+    </record>
+    <!--    Doctor Tree View-->
+    <record id="view_hospital_doctor_tree" model="ir.ui.view">
+        <field name="name">hospital.doctor.tree</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="doctor" optional="show"/>
+                <field name="d_id" optional="show" widget="handle"/>
+                <field name="d_email" optional="hide" widget="email"/>
+                <field name="doc_mob" optional="hide" widget="phone"/>
+                <field name="d_gender" optional="show"/>
+                <field name="d_image" optional="hide"/>
+                <field name="d_dob" optional="hide"/>
+                <field name="d_age" optional="show"/>
+                <field name="patient_ids" widget="many2many_tags" optional="hide"/>
+                <field name="exp" optional="hide"/>
+                <field name="designation" optional="show"/>
+                <field name="salary" string="Salary" optional="hide" avg="Average Salary"/>
+                <field name="info" optional="hide"/>
+                <field name="is_married" optional="hide"/>
+                <field name="patient_ids" widget="many2many_tags" optional="hide"/>
+                <field name="joining_date" optional="Show"/>
+                <field name="leaving_date" optional="Hide"/>
+                <field name="rating" optional="show" widget="priority"/>
+                <field name="qualifications"/>
+
+            </tree>
+        </field>
+    </record>
+
+    <!--  doctors Search View-->
+    <record id="view_hospital_doctor_search" model="ir.ui.view">
+        <field name="name">hospital.doctor.search</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <search string="Search Doctors">
+                <field name="doctor" filter_domain="['|',('doctor','ilike',self),('d_age','ilike',self)]"/>
+                <field name="d_age" filter_domain="[('d_age','>',self)]"/>
+                <field name="specialist" filter_domain="[('specialist','ilike',self)]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <filter string="Male" name="male" domain="[('d_gender','=','male')]"/>
+                <filter string="Female" name="female" domain="[('d_gender','=','female')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Gender" name="d_gender" context="{'group_by':'d_gender'}"/>
+                    <filter string="Speciality" name="specialist" context="{'group_by':'specialist'}"/>
+                </group>
+                <searchpanel>
+                    <field name="designation" string="Designation"
+                           enable_counters="1" icon="fa-user"
+                           color="red" expand="1"
+                           select="one"/>
+                    <field name="d_gender" enable_counters="1" icon="fa-male"
+                           select="multi"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+
+    <!--    Doctor Record-->
+    <record id="action_hospital_doctor" model="ir.actions.act_window">
+        <field name="name">Doctors</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.doctor</field>
+        <field name="context">{'search_default_d_gender':1}</field> <!--Adding default filter-->
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+
+
+    <!--    Doctor Menu-->
+    <menuitem id="menu_doctors"
+              name="Doctors"
+              parent="menu_staff"
+              action="action_hospital_doctor"
+              sequence="20"
+              groups="group_hospital_doctor,group_hospital_manager"
+    />
+
+</odoo>

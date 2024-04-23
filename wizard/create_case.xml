@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="view_create_case_form" model="ir.ui.view">
+        <field name="name">create.case.wizard.form</field>
+        <field name="model">create.case.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create New Case">
+
+                <group>
+                    <field name="name" options="{'no_create_edit': True}"/>
+                    <field name="d_id" options="{'no_create_edit': True,'no_create':True}"/>
+                    <field name="admission_date"/>
+                    <field name="curr"/>
+                    <field name="prev"/>
+                    <field name="criticality"/>
+                    <field name="c_ids"/>
+                </group>
+                <footer>
+                    <button name="print_case_report" string="Print Report"
+                            type="object" class="btn-primary"/>
+                    <button name="action_create_case" confirm="Do You Really Want To Create a New Case?" string="Create"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+
+            </form>
+        </field>
+    </record>
+
+    <record id='action_create_case_wizard' model="ir.actions.act_window">
+        <field name="name">Create Case</field>
+        <field name="res_model">create.case.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_create_case_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

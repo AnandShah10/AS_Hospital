@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Case Record-->
+    <record id="action_open_patient_case" model="ir.actions.act_window">
+        <field name="name">Cases</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.case</field>
+        <field name="domain">[('c_ids','=',active_id)]</field>
+        <field name="context">{}</field>
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+    <!-- Doctor Record-->
+    <record id="action_open_patient_doctor" model="ir.actions.act_window">
+        <field name="name">Doctors</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.doctor</field>
+        <field name="domain">[('patient_ids','in',active_id)]</field>
+        <field name="context">{}</field>
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+    <!-- Appointment Record-->
+    <record id="action_open_patient_appointment" model="ir.actions.act_window">
+        <field name="name">Appointments</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="domain">[('c_ids.c_ids','=',active_id)]</field>
+        <field name="context">{}</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <!--Patient Form View-->
+    <record id="view_hospital_patient_form" model="ir.ui.view">
+        <field name="name">hospital.patient.form</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button id="button_create_case" name="%(action_create_case_wizard)d"
+                            confirm='Do you want to create new case?' type="action"
+                            string="Create Case" class="btn-primary"/>
+                    <button name="send_email_with_attachment" type="object" data-hotkey="m"
+                            track_visibility="always" string="Attached Mail"
+                            icon="fa-send" help="Send Email with attachment"
+                            class="oe_highlight"/>
+                    <button name="send_on_whatsapp" type="object" icon="fa-whatsapp"
+                            string="Message on whatsapp" track_visibility="always"
+                            help="Send message on whatsapp" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(as_hospital.action_open_patient_case)d" type="action"
+                                class="oe_stat_button" icon="fa-list">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Cases
+                                </span>
+                                <field name="case_count" class="o_stat_value"/>
+                            </div>
+                        </button>
+                        <button name="%(as_hospital.action_open_patient_appointment)d" type="action"
+                                class="oe_stat_button" icon="fa-calendar">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Appointments
+                                </span>
+                                <field name="appointment_count" string="Appointments" class="o_stat_value"/>
+                            </div>
+                        </button>
+                        <button name="%(as_hospital.action_open_patient_doctor)d" type="action"
+                                class="oe_stat_button" icon="fa-user-md">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Doctors
+                                </span>
+                                <field name="doctor_ids" class="o_stat_value" widget="statinfo" nolabel="1"/>
+                            </div>
+                        </button>
+                    </div>
+                    <group>
+                        <div style="text-align:left">
+                            <h1>
+                                <field name="capitalized_name" help="Enter your name here."
+                                       placeholder="ENTER YOUR NAME"
+                                       nolabel="1"/>
+                            </h1>
+                            <field name="blood_group" placeholder="Blood Group"/>
+                            <br/>
+                            <field name="gender" required="1" placeholder='Choose Your Gender:'/>
+                        </div>
+
+                        <div style="text-align:right;">
+                            <field name="image" widget="image" class="oe_avatar"
+                                   style="height:10px,width:10px"
+                                   nolabel="1"/>
+                        </div>
+
+                        <separator/>
+                        <group>
+                            <field name="name" help="Enter your name here."/>
+                            <field name="p_id" string="Patient Id"/>
+                            <field name="age"/>
+                            <field name="is_child"/>
+                            <field name="is_married"/>
+                            <field name="dob"/>
+                            <field name="doctor_ids" widget="many2many_tags"
+                                   options="{'no_create_edit': True,'no_create':1,'no_open':True}"/>
+
+                            <field name="address" widget="CopyClipboardChar"/>
+
+                        </group>
+
+                        <notebook>
+                            <page string="Personal Info">
+                                <group>
+                                    <group>
+                                        <field name="f_name"/>
+                                        <field name="l_name"/>
+                                        <field name="m_name"/>
+                                    </group>
+                                    <group>
+                                        <field name="mother_name"/>
+                                        <field name="father_name"/>
+                                        <field name="guardian_name" invisible="age>=18"/>
+                                    </group>
+                                    <separator/>
+                                    <group>
+                                        <field name="is_married"/>
+                                        <field name="maiden_name"
+                                               invisible="not (gender=='female' and is_married==True)"/>
+                                    </group>
+
+                                </group>
+                            </page>
+                            <page string="Contact Info">
+                                <group>
+                                    <!--                                    <label for="add" class="fa fa-address-book"/>-->
+
+                                    <group string="Address">
+                                        <field name="house_no" string="House No." nolabel="0"/>
+
+                                        <field name="addr1" string="Street1" nolabel="0"/>
+
+                                        <field name="addr2" string="street2" nolabel="0"/>
+
+                                        <field name="city" string="City" nolabel="0"
+                                               domain="[('state', '=', p_state)]"/>
+
+                                        <field name="zip" string="Zip Code:" nolabel="0"/>
+
+                                        <field name="p_state" string="State" nolabel="0"
+                                               domain="[('country_id', '=', country)]"/>
+
+                                        <field name="country" string="Country" nolabel="0"/>
+
+                                    </group>
+                                    <group string="Contact">
+                                        <field name="mobile_no" required="1" widget="phone"/>
+                                        <field name="email" widget="email"/>
+                                    </group>
+
+                                </group>
+                            </page>
+                            <page string="Medical Info">
+                                <group>
+                                    <group string="Data">
+                                        <field name="blood_group"/>
+                                        <field name="has_disability"
+                                               class="fa fa-wheelchair"
+                                               string="Has_Disability"/>
+                                        <field name="is_abnormal"/>
+
+                                    </group>
+
+                                    <group string="Info">
+                                        <field name="has_rare_blood_type"/>
+                                        <field name="other_info" string="Other info"/>
+                                    </group>
+
+                                </group>
+                            </page>
+                            <page string="Case Info">
+                                <group>
+                                    <field name="c_ids">
+                                        <tree>
+                                            <field name="c_id"/>
+                                            <field name="c_notes"/>
+                                            <field name="m_notes"/>
+                                            <field name="criticality"/>
+                                            <field name="prev_illness"/>
+                                            <field name="curr_illness"/>
+                                        </tree>
+                                        <form>
+                                            <group string="Case">
+                                                <group>
+                                                    <field name="c_id"/>
+                                                    <field name="criticality"/>
+                                                    <field name="c_notes"/>
+                                                    <field name="progress_rate"/>
+                                                    <field name="is_admitted"/>
+                                                </group>
+
+                                                <group>
+                                                    <field name="admission_date"
+                                                           invisible="is_admitted==False"/>
+                                                    <field name="discharge_date"
+                                                           invisible="is_admitted==False"/>
+                                                    <field name="final_total"/>
+                                                    <field name="currency" invisible="1"/>
+                                                </group>
+
+                                            </group>
+                                            <notebook>
+                                                <page string="Doctor fees">
+                                                    <group string="Doctor Fees">
+                                                        <field name="fees"/>
+                                                        <field name="fee_tax"/>
+                                                        <field name="total_fee"/>
+                                                    </group>
+                                                </page>
+                                                <page string="Room Info" invisible="is_admitted==False">
+                                                    <group string="Room">
+                                                        <field name="duration" invisible="1"/>
+                                                        <field name="room_type" string="Room Type:"/>
+
+                                                    </group>
+                                                    <group string="Room Fees">
+                                                        <field name="room_price" string="Room Price"/>
+                                                        <field name="total_charge"/>
+                                                        <field name="room_tax"/>
+                                                        <field name="total_room_charge"/>
+                                                    </group>
+
+                                                </page>
+                                                <page string="History">
+                                                    <group string="History">
+                                                        <field name="m_notes"/>
+                                                        <field name="prev_illness"/>
+                                                        <field name="curr_illness"/>
+                                                    </group>
+                                                </page>
+                                                <page string="Doctor Info" class="fa fa-user-md">
+                                                    <group>
+                                                        <group string="Info">
+                                                            <field name="doctor" string="Doctor Name"
+                                                                   domain="[('doctor','ilike','dr.')]"
+                                                                   widget="selection"/>
+                                                            <field name="d_id"/>
+                                                            <field name="d_gender"/>
+                                                        </group>
+                                                        <group string="Contact">
+                                                            <field name="d_email" string="Doctor Email"/>
+                                                            <field name="doc_mob"/>
+                                                        </group>
+                                                    </group>
+                                                </page>
+                                                <page string="Appointment Info">
+                                                    <group>
+                                                        <field name="a_ids">
+                                                            <tree>
+                                                                <field name="a_id"/>
+                                                                <field name="appointment_date"/>
+                                                                <!--                                                                <field name="appointment_time"/>-->
+                                                            </tree>
+                                                            <form>
+                                                                <group>
+                                                                    <group>
+                                                                        <field name="a_id"
+                                                                               string="Appointment ID"/>
+                                                                    </group>
+                                                                    <group>
+                                                                        <field name="appointment_date"
+                                                                               string="Appointment date"/>
+                                                                    </group>
+                                                                    <!--                                                                    <group>-->
+                                                                    <!--                                                                        <field name="appointment_time"-->
+                                                                    <!--                                                                               string="Appointment time"/>-->
+                                                                    <!--                                                                    </group>-->
+                                                                </group>
+                                                            </form>
+                                                        </field>
+                                                    </group>
+                                                </page>
+                                                <page string="Medicine" name="medicine">
+                                                    <group string="Medicine">
+                                                        <field name="prescription_ids">
+                                                            <tree editable="bottom">
+                                                                <field name="name" string="Medication"/>
+                                                                <field name="quant" string="Quantity"/>
+                                                                <field name="price" string="Price"/>
+                                                                <field name="total" string="Total"/>
+                                                            </tree>
+                                                            <form>
+                                                                <group>
+                                                                    <group>
+                                                                        <field name="name" string="Medication"/>
+                                                                    </group>
+                                                                    <group>
+                                                                        <field name="quant" string="Quantity"/>
+                                                                    </group>
+                                                                    <group>
+                                                                        <field name="price" string="Price"/>
+                                                                    </group>
+                                                                    <group>
+                                                                        <field name="total" string="Total"/>
+                                                                    </group>
+                                                                </group>
+
+                                                            </form>
+                                                        </field>
+                                                    </group>
+                                                    <group style="text-align:right;float:right">
+                                                        <field name="total_price"/>
+                                                        <field name="tax"/>
+                                                        <field name="tax_total"
+                                                               style="border-top:1px solid #D3D3D3"/>
+                                                    </group>
+                                                </page>
+
+                                            </notebook>
+                                        </form>
+                                    </field>
+                                </group>
+                            </page>
+
+
+                        </notebook>
+                    </group>
+                </sheet>
+                <!--                <div class="oe_chatter">-->
+                <!--                    <field name="message_follower_ids"/>-->
+                <!--                    <field name="message_ids" options="{'post_refresh': 'recipients'}"/>-->
+                <!--                </div>-->
+            </form>
+        </field>
+    </record>
+
+
+    <!--    Patients Tree View-->
+    <record id="view_hospital_patient_tree" model="ir.ui.view">
+        <field name="name">hospital.patient.tree</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" optional="show"/>
+                <field name="p_id" optional="show" widget="handle"/>
+                <field name="age" optional="show"/>
+                <field name="is_child" optional="show"/>
+                <field name="has_rare_blood_type" optional="show"/>
+                <field name="gender" optional="show"/>
+                <field name="notes" optional="hide"/>
+                <field name="capitalized_name" optional="hide"/>
+                <field name="address" optional="hide"/>
+                <field name="image" optional="hide"/>
+                <field name="mobile_no" optional="hide" widget="phone"/>
+                <field name="blood_group" optional="show" class="fa fa-tint"/>
+                <field name="email" optional="hide" widget="email"/>
+                <field name="doctor_ids" widget="many2many_tags_avatar" optional="show"
+                />
+                <field name="user_id" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <!--    Patients Search View-->
+    <record id="view_hospital_patient_search" model="ir.ui.view">
+        <field name="name">hospital.patient.search</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <search string="Search Patients">
+                <field name="name" filter_domain="['|',('name','ilike',self),('age','ilike',self)]"/>
+                <field name="age" filter_domain="[('age','>',self)]"/>
+                <field name="blood_group" filter_domain="[('blood_group','ilike',self)]"/>
+                <separator/>
+                <filter string="Male" name="male" domain="[('gender','=','male')]"/>
+                <filter string="Female" name="female" domain="[('gender','=','female')]"/>
+                <filter string="Other" name="others" domain="[('gender','=','others')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Gender" name="gender" context="{'group_by':'gender'}"/>
+                    <filter string="Blood Group" name="blood_group" context="{'group_by':'blood_group'}"/>
+
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!--    Patients Kanban view-->
+    <record id="view_hospital_patient_kanban" model="ir.ui.view">
+        <field name="name">hospital.patient.kanban</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <kanban>
+
+                <template>
+                    <t t-name="kanban-box">
+                        <field name="image" widget="image" nolabel="1"/>
+
+                        <div>
+                            <div class="oe_kanban_global_click">
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="p_id" widget="badge"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>Age:
+                                    <field name="age"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>Gender:
+                                    <field name="gender"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="blood_group"/>
+                                </span>
+                            </div>
+                        </div>
+
+                    </t>
+                </template>
+
+            </kanban>
+        </field>
+    </record>
+
+    <!--    Patients Record-->
+    <record id="action_hospital_patient" model="ir.actions.act_window">
+        <field name="name">Patients</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.patient</field>
+        <field name="context">{'search_default_age': 18}</field>
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+
+    <!--    Patients Menu-->
+    <menuitem id="menu_patients"
+              name="Patients"
+              parent="menu_hospital_operations"
+              action="action_hospital_patient"
+              sequence="10"
+    />
+
+</odoo>

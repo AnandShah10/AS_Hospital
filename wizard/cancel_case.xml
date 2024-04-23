@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_cancel_case_form" model="ir.ui.view">
+        <field name="name">cancel.case.wizard.form</field>
+        <field name="model">cancel.case.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Cancel Case">
+                <group>
+                    <field name="name" options="{'no_create_edit': True}"/>
+                </group>
+                <footer>
+                    <button name="action_cancel_case" confirm="Do You Really Want To Delete The Case?" string="Delete"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="action_cancel_case_wizard" model="ir.actions.act_window">
+        <field name="name">Cancel Case</field>
+        <field name="res_model">cancel.case.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_cancel_case_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

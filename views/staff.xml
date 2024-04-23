@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--    Staff Form View-->
+    <record id="view_hospital_staff_form" model="ir.ui.view">
+        <field name="name">hospital.staff.form</field>
+        <field name="model">hospital.staff</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="alert alert-info text-center o_form_header"
+                         invisible="not birth_day"
+                         role="alert">
+                        <a class="close" data-bs-dismiss="alert" href="#">x</a>
+                        <div>
+                            <strong>Today is Birthday!</strong>
+                        </div>
+                        <div>Wish
+                            <field name="name" required="0" readonly="1"/>!
+                        </div>
+                    </div>
+                    <widget name="web_ribbon" title="Fired" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <group>
+                        <div style="text-align:left">
+                            <h1>
+                                <field name="staff_id" help="Enter Staff ID here."
+                                       placeholder="ENTER STAFF ID"
+                                       nolabel="1" size="100"/>
+                            </h1>
+                            <br/>
+                            <field name="name"/>
+                            <field name="role_id"/>
+                            <field name="birth_day" invisible="1"/>
+                            <field name="active" invisible="1"/>
+                            <field name="rating" widget="priority"/>
+                            <field name="d_specialist" string="Speciality" widget="many2many_tags"
+                                   invisible="role!='MedicalDoctor'"
+                                   required="role=='MedicalDoctor'"
+                            />
+                            <field name="n_specialist" string="Speciality" widget="many2many_tags"
+                                   invisible="role!='Nurse'"
+                                   required="role=='Nurse'"
+                            />
+                            <field name="s_gender" required="1" placeholder='Choose Your Gender:'/>
+                        </div>
+
+                        <div style="text-align:right;">
+                            <field name="s_image" widget="image" class="oe_avatar"
+                                   style="height:500px,width:500px" nolabel="1"/>
+                        </div>
+
+                        <separator/>
+                        <group>
+                            <field name="role"/>
+                            <field name="s_mob"/>
+                            <field name="s_email"/>
+                            <field name="s_age"/>
+                            <field name="s_dob"/>
+                            <field name="d_designation" invisible="role!='MedicalDoctor'"
+                                   required="role=='MedicalDoctor'"/>
+                            <field name="n_designation" invisible="role!='Nurse'"
+                                   required="role=='Nurse'"/>
+                        </group>
+                        <group>
+                            <field name="is_married"/>
+                            <field name="salary"/>
+                            <field name="joining_date"/>
+                            <field name="leaving_date" readonly="active==False"
+                                   required="active==False" invisible="active==True"/>
+                            <field name="exp"/>
+                            <field name="d_qualifications" invisible="role!='MedicalDoctor'"
+                                   required="role=='MedicalDoctor'"/>
+                            <field name="n_qualifications" invisible="role!='Nurse'"
+                                   required="role=='Nurse'"/>
+                            <field name="info"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--    Speciality Tree View-->
+    <record id="view_hospital_staff_tree" model="ir.ui.view">
+        <field name="name">hospital.staff.tree</field>
+        <field name="model">hospital.staff</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="staff_id" optional="show" widget="handle"/>
+                <field name="role_id" optional="show"/>
+                <field name="name" optional="show"/>
+                <field name="is_married" optional="hide"/>
+                <field name="role" optional="show"/>
+                <field name="s_mob" optional="hide"/>
+                <field name="s_email" optional="hide"/>
+                <field name="s_image" optional="hide"/>
+                <field name="s_gender" optional="show"/>
+                <field name="s_age" optional="show"/>
+                <field name="s_dob" optional="hide"/>
+                <field name="salary" optional="hide"/>
+                <field name="active" invisible="1"/>
+                <field name="exp" optional="hide"/>
+                <field name="joining_date" optional="Show"/>
+                <field name="leaving_date" invisible="active==True"/>
+                <field name="d_qualifications" invisible="role!='MedicalDoctor'"
+                />
+                <field name="n_qualifications" invisible="role!='Nurse'" optional="role=='Nurse'"/>
+
+                <field name="d_specialist" string="Speciality" widget="many2many_tags"
+                       invisible="role!='MedicalDoctor'"
+                />
+                <field name="n_specialist" string="Speciality" widget="many2many_tags"
+                       invisible="role!='Nurse'"
+                />
+                <field name="d_designation" invisible="role!='MedicalDoctor'"
+                />
+                <field name="n_designation" invisible="role!='Nurse'"
+                />
+                <field name="rating" optional="show" widget="priority"/>
+
+            </tree>
+        </field>
+    </record>
+
+    <!-- Staff Kanban View-->
+    <record id="view_hospital_staff_kanban" model="ir.ui.view">
+        <field name="name">hospital.staff.kanban</field>
+        <field name="model">hospital.staff</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <template>
+                    <t t-name="kanban-box">
+                        <div>
+                            <div class="o_kanban_image">
+                                <field name="s_image" widget="image"
+                                       nolabel="1" class="o_image_256_contain"
+                                       options="{'zoom':true,'zoom_delay':1000}"/>
+                            </div>
+                            <div class="oe_kanban_global_click">
+                                <div>Name:
+                                    <strong>
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <div>Staff ID:
+                                    <span>
+                                        <field name="staff_id"/>
+                                    </span>
+                                </div>
+                                <div>Role ID:
+                                    <span>
+                                        <field name="role_id"/>
+                                    </span>
+                                </div>
+                                <div>Role:
+                                    <span>
+                                        <field name="role"/>
+                                    </span>
+                                </div>
+                                <div>Age:
+                                    <span>
+                                        <field name="s_age"/>
+                                    </span>
+                                </div>
+                                <div>Gender:
+                                    <span>
+                                        <field name="s_gender"/>
+                                    </span>
+                                </div>
+                                <div>Joining Date:
+                                    <span>
+                                        <field name="rating" widget="priority"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </template>
+
+            </kanban>
+        </field>
+    </record>
+
+    <!--Staff Search View-->
+    <record id="view_hospital_staff_search" model="ir.ui.view">
+        <field name="name">hospital.staff.search</field>
+        <field name="model">hospital.staff</field>
+        <field name="arch" type="xml">
+            <search string="Search Staff">
+                <field name="name" filter_domain="['|',('name','ilike',self),('s_age','ilike',self)]"/>
+                <field name="s_age" filter_domain="[('s_age','>',self)]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <filter string="Male" name="male" domain="[('s_gender','=','male')]"/>
+                <filter string="Female" name="female" domain="[('s_gender','=','female')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Gender" name="s_gender" context="{'group_by':'s_gender'}"/>
+                </group>
+                <searchpanel>
+                    <field name="role" string="Roles" enable_counters="1" icon="fa-user"
+                           color="red" expand="1"
+                           select="one"/>
+                    <field name="s_gender" enable_counters="1" icon="fa-male"
+                           select="multi"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <!-- Staff Joining Date Calendar View-->
+    <record model="ir.ui.view" id="view_hospital_staff_calendar_joining">
+        <field name="name">hospital.staff.calendar.joining</field>
+        <field name="model">hospital.staff</field>
+        <field name="arch" type="xml">
+            <calendar string="Joining Calendar" date_start="joining_date"
+                      mode="month" color="name"
+                      event_open_popup="true">
+                <field name="name"/>
+                <field name="staff_id"/>
+                <field name="role_id"/>
+                <field name="s_age"/>
+                <field name="s_gender"/>
+                <field name="role"/>
+                <field name="s_image" widget="image"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Staff Leaving Date Calendar View-->
+    <record model="ir.ui.view" id="view_hospital_staff_calendar_leaving">
+        <field name="name">hospital.staff.calendar.leaving</field>
+        <field name="model">hospital.staff</field>
+        <field name="arch" type="xml">
+            <calendar string="Leaving Calendar" date_start="leaving_date"
+                      mode="month" color="name"
+                      event_open_popup="true">
+                <field name="name"/>
+                <field name="staff_id"/>
+                <field name="role_id"/>
+                <field name="s_age"/>
+                <field name="s_gender"/>
+                <field name="role"/>
+                <field name="s_image" widget="image"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!--  Staff Record-->
+    <record id="action_hospital_staff" model="ir.actions.act_window">
+        <field name="name">Staff</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.staff</field>
+<!--        <field name="groups_id" eval="[(4,ref('group_hospital_manager'))]"/>-->
+        <field name="context">{'search_default_s_gender':1}</field> <!--Adding default filter-->
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+
+    <!-- Joining Date Record-->
+    <record id="action_hospital_joining" model="ir.actions.act_window">
+        <field name="name">Joining</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.staff</field>
+        <field name="view_mode">calendar</field>
+        <field name="view_id" ref="view_hospital_staff_calendar_joining"/>
+
+    </record>
+
+    <!-- Leaving Date Record-->
+    <record id="action_hospital_leaving" model="ir.actions.act_window">
+        <field name="name">Leaving</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.staff</field>
+        <field name="view_mode">calendar</field>
+        <field name="view_id" ref="view_hospital_staff_calendar_leaving"/>
+    </record>
+
+    <!--  Joining Menu-->
+    <menuitem id="menu_hospital_joining"
+              parent="menu_staff"
+              name="Joining" sequence="30"
+              action="action_hospital_joining"
+              groups="as_hospital.group_hospital_manager"/>
+
+    <!--   Leaving Menu-->
+    <menuitem id="menu_hospital_leaving"
+              parent="menu_staff"
+              name="leaving" sequence="30"
+              action="action_hospital_leaving"
+              groups="as_hospital.group_hospital_manager"/>
+
+
+    <!--Staff Menu-->
+    <menuitem id="menu_staff"
+              name="Staff"
+              parent="menu_hospital_root"
+              sequence="10"
+              groups="as_hospital.group_hospital_doctor,as_hospital.group_hospital_manager,as_hospital.group_hospital_nurse"
+    />
+    <!--Staff Menu-->
+    <menuitem id="menu_staff_record"
+              name="Staff Records"
+              parent="menu_staff"
+              action="action_hospital_staff"
+              sequence="10"
+              groups="as_hospital.group_hospital_manager"
+
+
+    />
+
+</odoo>

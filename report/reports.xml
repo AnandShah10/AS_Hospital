@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="report_patient_details_pdf" model="ir.actions.report">
+        <field name="name">Patient Report</field>
+        <field name="model">hospital.patient</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_patient_details</field>
+        <field name="report_file">as_hospital.report_patient_details</field>
+        <field name="binding_model_id" ref="model_hospital_patient"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_patient_details_with_cases_pdf" model="ir.actions.report">
+        <field name="name">Patient Report With Cases</field>
+        <field name="model">hospital.patient</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_patient_details_with_cases</field>
+        <field name="report_file">as_hospital.report_patient_details_with_cases</field>
+        <field name="binding_model_id" ref="model_hospital_patient"/>
+        <field name="binding_type">report</field>
+    </record>
+
+     <record id="report_patient_details_html" model="ir.actions.report">
+        <field name="name">Patient Record Preview</field>
+        <field name="model">hospital.patient</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">as_hospital.report_patient_details_with_cases</field>
+        <field name="report_file">as_hospital.report_patient_details_with_cases</field>
+        <field name="binding_model_id" ref="model_hospital_patient"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_staff_details_pdf" model="ir.actions.report">
+        <field name="name">Staff Report</field>
+        <field name="model">hospital.staff</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_staff_details</field>
+        <field name="report_file">as_hospital.report_staff_details</field>
+        <field name="binding_model_id" ref="model_hospital_staff"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_doctor_details_pdf" model="ir.actions.report">
+        <field name="name">Doctor Report</field>
+        <field name="model">hospital.doctor</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_doctor_details</field>
+        <field name="report_file">as_hospital.report_doctor_details</field>
+        <field name="binding_model_id" ref="model_hospital_doctor"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_nurse_details_pdf" model="ir.actions.report">
+        <field name="name">Nurse Report</field>
+        <field name="model">hospital.nurse</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_nurse_details</field>
+        <field name="report_file">as_hospital.report_nurse_details</field>
+        <field name="binding_model_id" ref="model_hospital_nurse"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_case_details_pdf" model="ir.actions.report">
+        <field name="name">Case Report</field>
+        <field name="model">hospital.case</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_case_details</field>
+        <field name="report_file">as_hospital.report_case_details</field>
+        <field name="binding_model_id" ref="model_hospital_case"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="report_bill_payment_pdf" model="ir.actions.report">
+        <field name="name">Payment Receipt</field>
+        <field name="model">hospital.case</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_payment</field>
+        <field name="report_file">as_hospital.report_payment</field>
+        <field name="binding_model_id" ref="model_hospital_case"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_bill_payment_html" model="ir.actions.report">
+        <field name="name">Payment Receipt Preview</field>
+        <field name="model">hospital.case</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">as_hospital.report_payment</field>
+        <field name="report_file">as_hospital.report_payment</field>
+        <field name="binding_model_id" ref="model_hospital_case"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="report_case_details_html" model="ir.actions.report">
+        <field name="name">Case Report Preview</field>
+        <field name="model">hospital.case</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">as_hospital.report_case_details</field>
+        <field name="report_file">as_hospital.report_case_details</field>
+        <field name="binding_model_id" ref="model_hospital_case"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="report_case_details_xls" model="ir.actions.report">
+        <field name="name">Case Report Excel</field>
+        <field name="model">hospital.case</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">as_hospital.report_case_xls_details</field>
+        <field name="report_file">as_hospital.report_case_xls_details</field>
+        <field name="binding_model_id" ref="model_hospital_case"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="report_case_details_without_prescription_pdf" model="ir.actions.report">
+        <field name="name">Case Report without Medicines</field>
+        <field name="model">hospital.case</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_case_details_without_medicine</field>
+        <field name="report_file">as_hospital.report_case_details_without_medicine</field>
+        <field name="binding_model_id" ref="model_hospital_case"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="report_doctor_details_with_case_pdf" model="ir.actions.report">
+        <field name="name">Doctor Report With Cases</field>
+        <field name="model">hospital.doctor</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_doctor_details_with_cases</field>
+        <field name="report_file">as_hospital.report_doctor_details_with_cases</field>
+        <field name="binding_model_id" ref="model_hospital_doctor"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="report_case_wizard_details_pdf" model="ir.actions.report">
+        <field name="name">Case PDF Report(By ID)</field>
+        <field name="model">print.case.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">as_hospital.report_case_wizard_details</field>
+        <field name="report_file">as_hospital.report_case_wizard_details</field>
+        <field name="binding_model_id" ref="as_hospital.model_print_case_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="report_case_wizard_details_xlsx" model="ir.actions.report">
+        <field name="name">Case Excel Report(By ID)</field>
+        <field name="model">print.case.wizard</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">as_hospital.report_case_wizard_details_xlsx</field>
+        <field name="report_file">as_hospital.report_case_wizard_details_xlsx</field>
+        <field name="binding_model_id" ref="as_hospital.model_print_case_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

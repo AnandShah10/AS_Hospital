@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<odoo>
+    <template id="product_report_inherit" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//table[@class='table table-sm o_main_table table-borderless mt-4']//thead//tr//th[@name='th_description']"
+               position="after">
+            <th>Delivered:</th>
+        </xpath>
+        <xpath expr="//table[@class='table table-sm o_main_table table-borderless mt-4']//tbody[@class='sale_tbody']//tr//td[@name='td_name']"
+               position="after">
+            <td>
+                <span t-field="line.qty_delivered"/>
+            </td>
+        </xpath>
+    </template>
+</odoo>

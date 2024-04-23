@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_archive_case_form" model="ir.ui.view">
+        <field name="name">archive.case.wizard.form</field>
+        <field name="model">archive.case.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Archive Case">
+                <group>
+                    <field name="name" options="{'no_create_edit': True}"/>
+                </group>
+                <footer>
+                    <button name="action_archive_case" confirm="Do You Really Want To Archive The Case?"
+                            string="Archive"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="view_archive_case_not_found_form" model="ir.ui.view">
+        <field name="name">archive.case.not.found.form</field>
+        <field name="model">archive.case.wizard</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <h1 style="text-align:center;font-weight:Bold">
+                    <field name="message"/>
+                </h1>
+                <footer>
+                    <button string="OK" special="cancel" class="oe_highlight"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_archive_case_wizard" model="ir.actions.act_window">
+        <field name="name">Archive Case</field>
+        <field name="res_model">archive.case.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_archive_case_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

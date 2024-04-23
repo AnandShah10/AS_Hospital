@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_case_details">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="lang" t-value="doc.create_uid.lang"/>
+                <t t-set="doc" t-value="doc.with_context(lang=doc.create_uid.lang)"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .table
+                            {
+                            border-collapse:collapse;
+                            width:100%;
+                            }
+                            .table th,.table td
+                            {
+                            border:1px solid black;
+                            padding:8px;
+                            }
+                        </style>
+                        <!-- Case Info -->
+                        <h2>Case Information</h2>
+                        <p>Case ID:
+                            <t t-esc="doc.c_id"/>
+                        </p>
+                        <p>Criticality:
+                            <t t-esc="doc.criticality"/>
+                        </p>
+                        <!--                        <p>State:-->
+                        <!--                            <t t-esc="doc.state"/>-->
+                        <!--                        </p>-->
+                        <!-- Patient Info -->
+                        <h2>Patient Information</h2>
+                        <p>Name:
+                            <t t-esc="doc.p_name"/>
+                        </p>
+                        <p>Patient ID:
+                            <t t-esc="doc.p_id"/>
+                        </p>
+                        <p>Age:
+                            <t t-esc="doc.p_age"/>
+                        </p>
+                        <p>Gender:
+                            <span t-field="doc.p_gender"/>
+                        </p>
+                        <!--                        <p>Is Child:-->
+                        <!--                            <t t-esc="doc.p_is_child"/>-->
+                        <!--                        </p>-->
+                        <p>Blood Group:
+                            <t t-esc="doc.p_blood_group"/>
+                        </p>
+                        <p>Mobile:
+                            <t t-esc="doc.p_mob"/>
+                        </p>
+                        <!-- Doctor Info -->
+                        <h2>Doctor Information</h2>
+                        <p>Doctor Name:
+                            <t t-esc="doc.doctor.doctor"/>
+                        </p>
+                        <p>Doctor ID:
+                            <t t-esc="doc.d_id"/>
+                        </p>
+                        <p>Gender:
+                            <span t-field="doc.d_gender"/>
+                        </p>
+                        <p>Email:
+                            <t t-esc="doc.d_email"/>
+                        </p>
+                        <p>Mobile:
+                            <t t-esc="doc.doc_mob"/>
+                        </p>
+                        <!-- Admission Info -->
+                        <h2>Admission Information</h2>
+                        <p>Admission Date:
+                            <t t-esc="doc.admission_date"/>
+                        </p>
+                        <p>Discharge Date:
+                            <t t-esc="doc.discharge_date"/>
+                        </p>
+                        <p>Final Total:
+                            <t t-esc="doc.final_total"/>
+                        </p>
+                        <p>Is Admitted:
+                            <t t-esc="doc.is_admitted"/>
+                        </p>
+                        <p>Case Notes:
+                            <t t-esc="doc.c_notes"/>
+                        </p>
+                        <!-- Doctor Fees -->
+                        <h2>Doctor Fees</h2>
+                        <p>Fees:
+                            <t t-esc="doc.fees"/>
+                        </p>
+                        <p>Fee Tax:
+                            <t t-esc="doc.fee_tax"/>
+                        </p>
+                        <p>Total Fee:
+                            <t t-esc="doc.total_fee"/>
+                        </p>
+                        <!-- Room Info (If admitted) -->
+                        <t t-if="doc.is_admitted">
+                            <h2>Room Information</h2>
+                            <p>Duration:
+                                <t t-esc="doc.duration"/>
+                            </p>
+                            <p>Room Type:
+                                <t t-esc="doc.room_type"/>
+                            </p>
+                            <p>Room Price:
+                                <t t-esc="doc.room_price"/>
+                            </p>
+                            <p>Total Charge:
+                                <t t-esc="doc.total_charge"/>
+                            </p>
+                            <p>Room Tax:
+                                <t t-esc="doc.room_tax"/>
+                            </p>
+                            <p>Total Room Charge:
+                                <t t-esc="doc.total_room_charge"/>
+                            </p>
+                        </t>
+                        <!-- History -->
+                        <h2>History</h2>
+                        <p>Medical Notes:
+                            <t t-esc="doc.m_notes"/>
+                        </p>
+                        <p>Previous Illness:
+                            <t t-esc="doc.prev_illness"/>
+                        </p>
+                        <p>Current Illness:
+                            <t t-esc="doc.curr_illness"/>
+                        </p>
+                        <p>Progress Rate:
+                            <t t-esc="doc.progress_rate"/>
+                        </p>
+                        <!-- Appointment Info -->
+                        <h2 t-if="doc.a_ids">Appointment Information</h2>
+                        <table t-if="doc.a_ids"
+                               class="table table-condensed" style="border:3px solid black">
+                            <tr>
+                                <th>Appointment ID</th>
+                                <th>Appointment Date</th>
+                            </tr>
+                            <tr t-foreach="doc.a_ids" t-as="appointment" t-if="doc.a_ids">
+                                <td>
+                                    <t t-esc="appointment.a_id"/>
+                                </td>
+                                <td>
+                                    <t t-esc="appointment.appointment_date"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- Medicine Info -->
+                        <h2 t-if="doc.prescription_ids">Medicine Information</h2>
+                        <table t-if="doc.prescription_ids"
+                               class="table table-condensed" style="border:3px solid black">
+                            <tr>
+                                <th>Medication</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                            <tr t-if="doc.prescription_ids"
+                                t-foreach="doc.prescription_ids" t-as="prescription">
+                                <td>
+                                    <t t-esc="prescription.name"/>
+                                </td>
+                                <td>
+                                    <t t-esc="prescription.quant"/>
+                                </td>
+                                <td>
+                                    <t t-esc="prescription.price"/>
+                                </td>
+                                <td>
+                                    <t t-esc="prescription.total"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p>Total Price:
+                            <t t-esc="doc.total_price"/>
+                        </p>
+                        <p>Tax:
+                            <t t-esc="doc.tax"/>
+                        </p>
+                        <p>Tax Total:
+                            <t t-esc="doc.tax_total"/>
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+    <template id="report_case_details_without_medicine">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <t t-esc="doc.c_id"/>
+                    <div class="page">
+                        <!-- Case Info -->
+                        <h2>Case Information</h2>
+                        <p>Case ID:
+                            <t t-esc="doc.c_id"/>
+                        </p>
+                        <p>Criticality:
+                            <t t-esc="doc.criticality"/>
+                        </p>
+                        <!-- Patient Info -->
+                        <h2>Patient Information</h2>
+                        <p>Name:
+                            <t t-esc="doc.p_name"/>
+                        </p>
+                        <p>Patient ID:
+                            <t t-esc="doc.p_id"/>
+                        </p>
+                        <p>Age:
+                            <t t-esc="doc.p_age"/>
+                        </p>
+                        <p>Gender:
+                            <t t-esc="doc.p_gender"/>
+                        </p>
+                        <p>Is Child:
+                            <t t-esc="doc.p_is_child"/>
+                        </p>
+                        <p>Blood Group:
+                            <t t-esc="doc.p_blood_group"/>
+                        </p>
+                        <p>Mobile:
+                            <t t-esc="doc.p_mob"/>
+                        </p>
+                        <!-- Doctor Info -->
+                        <h2>Doctor Information</h2>
+                        <p>Doctor Name:
+                            <t t-esc="doc.doctor.doctor"/>
+                        </p>
+                        <p>Doctor ID:
+                            <t t-esc="doc.d_id"/>
+                        </p>
+                        <p>Gender:
+                            <t t-esc="doc.d_gender"/>
+                        </p>
+                        <p>Email:
+                            <t t-esc="doc.d_email"/>
+                        </p>
+                        <p>Mobile:
+                            <t t-esc="doc.doc_mob"/>
+                        </p>
+                        <!-- Admission Info -->
+                        <h2>Admission Information</h2>
+                        <p>Admission Date:
+                            <t t-esc="doc.admission_date"/>
+                        </p>
+                        <p>Discharge Date:
+                            <t t-esc="doc.discharge_date"/>
+                        </p>
+                        <p>Final Total:
+                            <t t-esc="doc.final_total"/>
+                        </p>
+                        <p>Is Admitted:
+                            <t t-esc="doc.is_admitted"/>
+                        </p>
+                        <p>Case Notes:
+                            <t t-esc="doc.c_notes"/>
+                        </p>
+                        <!-- Doctor Fees -->
+                        <h2>Doctor Fees</h2>
+                        <p>Fees:
+                            <t t-esc="doc.fees"/>
+                        </p>
+                        <p>Fee Tax:
+                            <t t-esc="doc.fee_tax"/>
+                        </p>
+                        <p>Total Fee:
+                            <t t-esc="doc.total_fee"/>
+                        </p>
+                        <!-- Room Info (If admitted) -->
+                        <t t-if="doc.is_admitted">
+                            <h2>Room Information</h2>
+                            <p>Duration:
+                                <t t-esc="doc.duration"/>
+                            </p>
+                            <p>Room Type:
+                                <t t-esc="doc.room_type"/>
+                            </p>
+                            <p>Room Price:
+                                <t t-esc="doc.room_price"/>
+                            </p>
+                            <p>Total Charge:
+                                <t t-esc="doc.total_charge"/>
+                            </p>
+                            <p>Room Tax:
+                                <t t-esc="doc.room_tax"/>
+                            </p>
+                            <p>Total Room Charge:
+                                <t t-esc="doc.total_room_charge"/>
+                            </p>
+                        </t>
+                        <!-- History -->
+                        <h2>History</h2>
+                        <p>Medical Notes:
+                            <t t-esc="doc.m_notes"/>
+                        </p>
+                        <p>Previous Illness:
+                            <t t-esc="doc.prev_illness"/>
+                        </p>
+                        <p>Current Illness:
+                            <t t-esc="doc.curr_illness"/>
+                        </p>
+                        <p>Progress Rate:
+                            <t t-esc="doc.progress_rate"/>
+                        </p>
+                        <!-- Appointment Info -->
+                        <h2 t-if="doc.a_ids">Appointment Information</h2>
+                        <table t-if="doc.a_ids">
+                            <tr>
+                                <th>Appointment ID</th>
+                                <th>Appointment Date</th>
+                            </tr>
+                            <tr t-foreach="doc.a_ids" t-as="appointment" t-if="doc.a_ids">
+                                <td>
+                                    <t t-esc="appointment.a_id"/>
+                                </td>
+                                <td>
+                                    <t t-esc="appointment.appointment_date"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

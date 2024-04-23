@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_patient_details">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h2>Patient Information</h2>
+                                <p>
+                                    <strong>Name:</strong>
+                                    <span t-field="o.name"/>
+                                </p>
+                                <p>
+                                    <strong>Date of Birth:</strong>
+                                    <span t-field="o.dob"/>
+                                </p>
+                                <p>
+                                    <strong>Age:</strong>
+                                    <span t-field="o.age"/>
+                                </p>
+                                <p>
+                                    <strong>Gender:</strong>
+                                    <span t-field="o.gender"/>
+                                </p>
+                                <p>
+                                    <strong>Marital Status:</strong>
+                                    <span t-if="o.is_married">Married</span>
+                                    <span t-if="not o.is_married">Single</span>
+                                </p>
+                                <p>
+                                    <strong>Email:</strong>
+                                    <span t-field="o.email"/>
+                                </p>
+                                <p>
+                                    <strong>Mobile Number:</strong>
+                                    <span t-field="o.mobile_no"/>
+                                </p>
+                                <p>
+                                    <strong>Address:</strong>
+                                </p>
+                                <p>
+                                    <span t-field="o.address"/>
+                                </p>
+                                <p>
+                                    <strong>Has Disability:</strong>
+                                    <span t-if="o.has_disability">Yes</span>
+                                    <span t-if="not o.has_disability">No</span>
+                                </p>
+                                <p>
+                                    <strong>Has Abnormality:</strong>
+                                    <span t-if="o.is_abnormal">Yes</span>
+                                    <span t-if="not o.is_abnormal">No</span>
+                                </p>
+                                <!--                            </div>-->
+                                <!--                            <div class="col-xs-12">-->
+                                <img t-if="o.image" t-att-src="'data:image/jpeg;base64,%s' % o.image"
+                                     style="max-width: 100%;"/>
+                                <p>
+                                    <strong>Blood Group:</strong>
+                                    <span t-field="o.blood_group"/>
+                                </p>
+                                <p>
+                                    <strong>Rare Blood Type:</strong>
+                                    <span t-if="o.has_rare_blood_type">Yes</span>
+                                    <span t-if="not o.has_rare_blood_type">No</span>
+                                </p>
+                                <p t-if="o.other_info">
+                                    <strong>Other Information:</strong>
+                                </p>
+                                <p>
+                                    <span t-field="o.other_info"/>
+                                </p>
+                                <p>
+                                    <strong>Doctors:</strong>
+                                </p>
+                                <ul>
+                                    <t t-foreach="o.doctor_ids" t-as="doctor">
+                                        <li>
+                                            <span t-field="doctor.doctor"/>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_patient_details_with_cases" inherit_id="report_patient_details"
+    primary="True">
+        <xpath expr="//t//div//div//div//ul" position="after">
+                <t t-call="web.html_container">
+        <p>
+            <strong>Cases:</strong>
+        </p>
+        <ul>
+            <t t-foreach="o.c_ids" t-as="case">
+                <li>
+                    <span t-field="case.c_id"/>
+                </li>
+            </t>
+        </ul>
+                </t>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Doctor Speciality Form View-->
+    <record id="view_doctor_speciality_form" model="ir.ui.view">
+        <field name="name">doctor.speciality.form</field>
+        <field name="model">doctor.speciality</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Doctor Speciality Tree View-->
+    <record id="view_doctor_speciality_tree" model="ir.ui.view">
+        <field name="name">doctor.speciality.tree</field>
+        <field name="model">doctor.speciality</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Doctor Speciality Record-->
+    <record id="action_doctor_speciality" model="ir.actions.act_window">
+        <field name="name">Doctor Specialities</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">doctor.speciality</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Nurse Speciality Form View-->
+    <record id="view_nurse_speciality_form" model="ir.ui.view">
+        <field name="name">nurse.speciality.form</field>
+        <field name="model">nurse.speciality</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" groups="as_hospital.group_hospital_manager,as_hospital.group_hospital_admin,as_hospital.group_hospital_nurse"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Nurse Speciality Tree View-->
+    <record id="view_nurse_speciality_tree" model="ir.ui.view">
+        <field name="name">nurse.speciality.tree</field>
+        <field name="model">nurse.speciality</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" groups="as_hospital.group_hospital_manager,as_hospital.group_hospital_admin,as_hospital.group_hospital_nurse"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Nurse Speciality Record-->
+    <record id="action_nurse_speciality" model="ir.actions.act_window">
+        <field name="name">Nurse Specialities</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">nurse.speciality</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!--    Speciality Menu-->
+    <menuitem id="menu_specialities"
+              parent="menu_hospital_root"
+              name="Specialities"
+              sequence="90"
+              groups="as_hospital.group_hospital_doctor,as_hospital.group_hospital_manager,as_hospital.group_hospital_nurse,as_hospital.group_hospital_admin"
+    />
+    <!-- Doctor   Speciality Menu-->
+    <menuitem id="menu_doctor_specialities"
+              name="Doctor Specialities"
+              parent="menu_specialities"
+              action="action_doctor_speciality"
+              sequence="10"
+              groups="as_hospital.group_hospital_doctor,as_hospital.group_hospital_manager,as_hospital.group_hospital_admin"
+
+    />
+    <!-- Nurse   Speciality Menu-->
+    <menuitem id="menu_nurse_specialities"
+              name="Nurse Specialities"
+              parent="menu_specialities"
+              action="action_nurse_speciality"
+              sequence="20"
+              groups="as_hospital.group_hospital_manager,as_hospital.group_hospital_nurse,as_hospital.group_hospital_admin"
+
+    />
+
+</odoo>

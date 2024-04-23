@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="demo_nurse_record_1" model="hospital.nurse">
+        <field name="name">yguhuigugu</field>
+        <field name="n_image" type="base64" file="as_hospital/static/img/default_user.png"/>
+        <field name="n_gender">male</field>
+        <field name="n_dob">1989-09-12</field>
+        <field name="exp">1 Year</field>
+        <field name="salary">2356564.99</field>
+        <field name="n_email">ftydtd@Ftyd.gh</field>
+        <field name="specialist" eval="[(6,0, [1,2])]"/>
+    </record>
+
+    <record id="demo_doctor_record_1" model="hospital.doctor">
+        <field name="doctor">Dr.yguhuiu</field>
+        <field name="d_image" type="base64" file="as_hospital/static/img/default_user.png"/>
+        <field name="d_gender">female</field>
+        <field name="d_dob">1989-09-12</field>
+        <field name="exp">5 Year</field>
+        <field name="salary">23006564.99</field>
+        <field name="d_email">fydtd@Ftyd.gh</field>
+        <field name="specialist" eval="[(6,0, [4,5])]"/>
+    </record>
+
+    <record id="demo_doctor_record_2" model="hospital.doctor">
+        <field name="doctor">Dr.yguiu</field>
+        <field name="d_image" type="base64" file="as_hospital/static/img/default_user.png"/>
+        <field name="d_gender">male</field>
+        <field name="d_dob">1989-09-11</field>
+        <field name="exp">5 Year</field>
+        <field name="salary">23006524.99</field>
+        <field name="d_email">ftd@Fdtrhgytyd.gh</field>
+        <field name="specialist" eval="[(6,0, [2,4])]"/>
+    </record>
+
+    <record id="demo_patient_record_1" model="hospital.patient">
+        <field name="name">guhuiu</field>
+        <field name="gender">others</field>
+        <field name="dob">1989-09-12</field>
+        <field name="image" type="base64" file="as_hospital/static/img/default_user.png"/>
+        <field name="age">35</field>
+        <field name="capitalized_name">GUHUIU</field>
+        <field name="address">B-7,Lakshmi Colony,Near AvkarHall,Ghodasar,Ahmedabad,Gujarat,India - 380050
+        </field>
+        <field name="is_married">True</field>
+        <field name="email">dtd@Fyd.gh</field>
+        <field name="blood_group">A-</field>
+        <field name="country">104</field>
+        <field name="p_state">588</field>
+        <field name="city">34</field>
+        <field name="house_no">B-7</field>
+        <field name="addr1">Lakshmi Colony</field>
+        <field name="addr2">Near Avkarhall,Ghodasar</field>
+        <field name="zip">380050</field>
+        <field name="doctor_ids" eval="[(6,0,[ref('demo_doctor_record_1')])]"/>
+        <field name="mobile_no">4545454523</field>
+    </record>
+
+    <record id="demo_patient_record_2" model="hospital.patient">
+        <field name="name">rdtrdtrdriu</field>
+        <field name="gender">male</field>
+        <field name="dob">1989-08-12</field>
+        <field name="image" type="base64" file="as_hospital/static/img/default_user.png"/>
+        <field name="age">35</field>
+        <field name="capitalized_name">GUHUIU</field>
+        <field name="address">A-7,Lakshmi Colony,Near AvkarHall,Ghodasar,Ahmedabad,Gujarat,India - 380050
+        </field>
+        <field name="is_married">0</field>
+        <field name="email">dtd@ttfyftyd.gh</field>
+        <field name="blood_group">A+</field>
+        <field name="country">104</field>
+        <field name="p_state">588</field>
+        <field name="city">34</field>
+        <field name="house_no">A-7</field>
+        <field name="addr1">Lakshmi Colony</field>
+        <field name="addr2">Near Avkarhall,Ghodasar</field>
+        <field name="zip">380050</field>
+        <field name="doctor_ids" eval="[(6,0,[ref('demo_doctor_record_2')])]"/>
+        <field name="mobile_no">4545454223</field>
+    </record>
+
+    <record id="demo_case_record_1" model="hospital.case">
+        <field name="c_ids" ref="demo_patient_record_1"/>
+        <field name="doctor" ref="demo_doctor_record_1"/>
+        <field name="is_admitted">0</field>
+        <field name="is_paid">1</field>
+        <field name="state">6</field>
+        <field name="active">1</field>
+        <field name="criticality">good</field>
+        <field name="curr_illness">ftyfyucfu</field>
+        <field name="prev_illness">rtfyugiho</field>
+        <field name="fees">56564646</field>
+    </record>
+    <record id="demo_case_record_2" model="hospital.case">
+        <field name="c_ids" ref="demo_patient_record_2"/>
+        <field name="doctor" ref="demo_doctor_record_2"/>
+        <field name="is_admitted">0</field>
+        <field name="is_paid">0</field>
+        <field name="state">5</field>
+        <field name="active">1</field>
+        <field name="criticality">fair</field>
+        <field name="curr_illness">ftyfyucfu</field>
+        <field name="prev_illness">rtfyugiho</field>
+        <field name="fees">56564646</field>
+    </record>
+
+    <record id="demo_appointment_record_1" model="hospital.appointment">
+        <field name="c_ids" ref="demo_case_record_1"/>
+        <field name="appointment_date">2024-07-02</field>
+        <field name="active">1</field>
+    </record>
+
+    <record id="demo_appointment_record_2" model="hospital.appointment">
+        <field name="c_ids" ref="demo_case_record_2"/>
+        <field name="appointment_date">2024-07-01</field>
+        <field name="active">1</field>
+    </record>
+
+    <record id="demo_prescription_record_1" model='patient.prescription'>
+        <field name="name">tytftdf</field>
+        <field name="quant">12</field>
+        <field name="price">45.00</field>
+        <field name="c_id" ref="demo_case_record_2"/>
+    </record>
+
+    <record id="demo_prescription_record_2" model='patient.prescription'>
+        <field name="name">tytftyfydf</field>
+        <field name="quant">10</field>
+        <field name="price">54.00</field>
+        <field name="c_id" ref="demo_case_record_2"/>
+    </record>
+
+    <delete model="hospital.doctor" search="[('doctor','not ilike','dr.')]"/>
+</odoo>

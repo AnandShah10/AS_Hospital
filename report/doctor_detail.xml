@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <template id="report_doctor_details">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="oe_kanban_global_click">
+                                                <div class="oe_kanban_details">
+                                                    <div class="oe_kanban_image">
+                                                        <img t-if="doc.d_image"
+                                                             t-att-src="'data:image/png;base64,%s' % doc.d_image.decode('utf-8')"
+                                                             style="max-width: 100px;float:left"/>
+                                                        <img t-if="not doc.d_image"
+                                                             t-att-src="'/report/barcode/QR/'+doc.doctor"
+                                                             alt="barcode"
+                                                             style="width:150px;height:75px;float:right"/>
+                                                        <div>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="oe_kanban_title">
+                                                        <h5 class="card-title">
+                                                            <strong>Name:</strong>
+                                                            <span t-field="doc.doctor"/>
+                                                        </h5>
+                                                        <p class="card-text">
+                                                            <strong>ID:</strong>
+                                                            <span t-field="doc.d_id"/>
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <strong>Age:</strong>
+                                                            <span t-field="doc.d_age"/>
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <strong>Gender:</strong>
+                                                            <span t-field="doc.d_gender"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.designation">
+                                                            <strong>Designation:</strong>
+                                                            <span t-field="doc.designation" widget="badge"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.specialist">
+                                                            <strong>Speciality:</strong>
+                                                            <span t-field="doc.specialist" widget="many2many_tags"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.exp">
+                                                            <strong>Experience:</strong>
+                                                            <span t-field="doc.exp"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.qualifications">
+                                                            <strong>Qualifications:</strong>
+                                                            <span t-field="doc.qualifications"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.salary">
+                                                            <strong>Salary:</strong>
+                                                            <span t-field="doc.salary"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.joining_date">
+                                                            <strong>Joining Date:</strong>
+                                                            <span t-field="doc.joining_date"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.leaving_date">
+                                                            <strong>Leaving Date:</strong>
+                                                            <span t-field="doc.leaving_date"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.doc_mob">
+                                                            <strong>Mobile No:</strong>
+                                                            <span t-field="doc.doc_mob"/>
+                                                        </p>
+                                                        <p class="card-text" t-if="doc.d_email">
+                                                            <strong>Email:</strong>
+                                                            <span t-field="doc.d_email"/>
+                                                        </p>
+                                                        <!--                                                        <div>-->
+                                                        <!--                                                            <span t-field="doc.doctor"-->
+                                                        <!--                                                                  t-options="{'widget':'barcode','humanreadable':'0','width':400,'height':100}"/>-->
+                                                        <!--                                                        </div>-->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_doctor_details_with_cases" inherit_id="report_doctor_details" primary="True">
+
+            <xpath expr="//t//div[@class='container']" position="after">
+                <t t-call="web.html_container">
+<!--                    <t t-foreach="docs" t-as="doc">-->
+<!--                        <img t-if="not doc.d_image"-->
+<!--                             t-att-src="'/report/barcode/Code128/'+doc.doctor"-->
+<!--                             alt="barcode"-->
+<!--                             style="width:150px;height:75px;float:left"/>-->
+<!--                    </t>-->
+                    <table t-if="case_list">
+                            <tr>
+                                <th>Sr.</th>
+                                <th>Case ID</th>
+                                <th>Patient Name</th>
+                                <th>Patient ID</th>
+                            </tr>
+
+                            <tr t-foreach="case_list" t-as="c">
+                                <td>
+                                    <span t-esc="c_index + 1"/>
+                                </td>
+                                <td>
+                                    <t t-esc="c['c_id']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="c['p_name']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="c['p_id']"/>
+                                </td>
+                            </tr>
+                    </table>
+                </t>
+            </xpath>
+
+        </template>
+
+    </data>
+</odoo>

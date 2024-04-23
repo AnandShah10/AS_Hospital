@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Appointment Form View-->
+    <record id="view_hospital_appointment_form" model="ir.ui.view">
+        <field name="name">hospital.appointment.form</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="mail_appointment" type="object" data-hotkey="m"
+                            track_visibility="always" string="Send Mail"
+                            icon="fa-envelope" help="Send Email"
+                            class="oe_highlight"/>
+                    <button name="send_on_whatsapp" type="object" icon="fa-whatsapp"
+                            string="Message on whatsapp" track_visibility="always"
+                            help="Send message on whatsapp" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info text-center o_form_header"
+                         invisible='not (appointment_today)'
+                         role="alert">
+                        <a class="close" data-bs-dismiss="alert" href="#">x</a>
+                        <div>
+                            <strong>Today is Appointment!</strong>
+                        </div>
+                        <div>Ref No.
+                            <field name="a_id" required="0" readonly="1"/>!
+                        </div>
+                    </div>
+                    <widget name="web_ribbon" title="Canceled" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <h1>
+                            <field name="a_id" string="Appointment ID"/>
+                        </h1>
+                        <field name="c_ids"/>
+                        <field name="active" invisible="1"/>
+                        <group>
+                            <field name="appointment_date"/>
+                            <field name="appointment_today" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" options="{'post_refresh': 'recipients'}"
+                           widget="mail_thread"/>
+                </div>
+
+            </form>
+        </field>
+    </record>
+
+    <!--  Appointments Tree View-->
+    <record id="view_hospital_appointment_tree" model="ir.ui.view">
+        <field name="name">hospital.doctor.appointment</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <tree editable="top" default_order="id desc">
+                <field name="a_id" optional="show" widget="handle"/>
+                <field name="c_ids" optional="show"/>
+                <field name="appointment_date" optional="show"/>
+                <!--                <field name="appointment_time" optional="show" widget="float_time"/>-->
+            </tree>
+        </field>
+    </record>
+
+    <!--  Appointments Kanban view-->
+    <record id="view_hospital_appointment_kanban" model="ir.ui.view">
+        <field name="name">hospital.appointment.kanban</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <template>
+                    <t t-name="kanban-box">
+                        <div>
+                            <div class="oe_kanban_global_click">
+                                <strong>Appointment ID:
+                                    <field name="a_id"/>
+                                </strong>
+                            </div>
+                            <div class="oe_kanban_global_click">
+                                <strong>Case ID:
+                                    <field name="c_ids"/>
+                                </strong>
+                            </div>
+
+                            <div>Appointment Date:
+                                <span>
+                                    <field name="appointment_date"/>
+                                </span>
+                            </div>
+                        </div>
+
+                    </t>
+                </template>
+
+            </kanban>
+        </field>
+    </record>
+
+    <!--   Appointments Calendar View-->
+    <record model="ir.ui.view" id="view_hospital_appointment_calendar">
+        <field name="name">hospital.appointment.calendar</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <calendar string="Appointment Calendar" date_start="appointment_date" mode="month" color="a_id"
+                      event_open_popup="true">
+                <field name="a_id"/>
+                <field name="c_ids"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!--  Appointments Search View-->
+    <record id="view_hospital_appointment_search" model="ir.ui.view">
+        <field name="name">hospital.appointment.search</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <search string="Search appointments">
+                <field name="a_id" filter_domain="[('a_id','ilike',self)]"/>
+                <field name="c_ids" filter_domain="[('c_id','ilike',self)]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <filter name="appointment_date" string="Upcoming Appointments"
+                        domain="[('appointment_date','>=',context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="create_date" string="This Weeks appointments"
+                        domain="[('appointment_date','>=',(context_today()+datetime.timedelta(-6)).strftime('%Y-%m-%d'))]"/>
+            </search>
+        </field>
+    </record>
+    <!--   Appointments Activity View-->
+    <record id="view_hospital_appointment_activity" model="ir.ui.view">
+        <field name="name">hospital.appointment.activity</field>
+        <field name="model">hospital.appointment</field>
+        <field name="arch" type="xml">
+            <activity string="Appointments">
+                <templates>
+                    <div t-name="activity-box">
+                        <div>
+                            <field name="a_id"/>
+                            <field name="c_ids"/>
+                            <field name="appointment_date"/>
+                        </div>
+                    </div>
+                </templates>
+            </activity>
+        </field>
+    </record>
+
+    <!-- Case Record-->
+    <record id="action_hospital_appointment" model="ir.actions.act_window">
+        <field name="name">Appointments</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="view_mode">activity,calendar,tree,form,kanban</field>
+    </record>
+
+    <!-- Appointment Menu-->
+    <menuitem id="menu_appointments_root"
+              name="Appointment"
+              parent="menu_hospital_root"
+              sequence="20"
+    />
+
+    <!-- Appointment Sub Menu-->
+    <menuitem id="menu_appointments"
+              name="Appointment"
+              parent="menu_appointments_root"
+              action="action_hospital_appointment"
+              sequence="10"
+              groups="group_hospital_manager"
+
+    />
+
+
+</odoo>

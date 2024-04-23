@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="model_category_hospital" model="ir.module.category">
+        <field name="name">Hospital Management</field>
+        <field name="description">Category for Hospital</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="model_category_hospital_users" model="ir.module.category">
+        <field name="name">Hospital Management Users</field>
+        <field name="parent_id" ref="as_hospital.model_category_hospital"/>
+    </record>
+
+
+<!--        <record id="internal_user_patient_access_group" model="ir.model.access">-->
+<!--            <field name="name">Patient Permissions</field>-->
+<!--            <field name="model_id" ref="as_hospital.model_hospital_patient"/>-->
+<!--            <field name="group_id" ref='base.group_user'/>-->
+<!--            <field name="perm_create" eval="1"/>-->
+<!--            <field name="perm_write" eval="1"/>-->
+<!--            <field name="perm_unlink" eval="1"/>-->
+<!--            <field name="perm_read" eval="1"/>-->
+<!--        </record>-->
+
+    <record id="group_hospital_patient" model="res.groups">
+        <field name="name">Patient</field>
+        <field name="category_id" ref="as_hospital.model_category_hospital_users"/>
+    </record>
+
+    <record id="group_hospital_doctor" model="res.groups">
+        <field name="name">Doctor</field>
+        <field name="category_id" ref="as_hospital.model_category_hospital_users"/>
+    </record>
+
+    <record id="group_hospital_nurse" model="res.groups">
+        <field name="name">Nurse</field>
+        <field name="category_id" ref="as_hospital.model_category_hospital_users"/>
+    </record>
+
+    <record id="group_hospital_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="as_hospital.model_category_hospital"/>
+        <field name="implied_ids" eval="[(6,0, [ref('as_hospital.group_hospital_doctor'),
+        ref('as_hospital.group_hospital_nurse'),ref('as_hospital.group_hospital_patient')])]"/>
+    </record>
+
+    <record id="group_hospital_admin" model="res.groups">
+        <field name="name">Admin</field>
+        <field name="category_id" ref="as_hospital.model_category_hospital"/>
+        <field name="implied_ids" eval="[(6,0,[ref('as_hospital.group_hospital_manager')])]"/>
+    </record>
+
+    <record id="rule_hospital_patient" model="ir.rule">
+        <field name="name">See Only His/Her Records</field>
+        <field name="model_id" ref="model_hospital_patient"/>
+        <field name="domain_force">[('user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_patient'))]"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_patient_case" model="ir.rule">
+        <field name="name">See Only His/Her Cases</field>
+        <field name="model_id" ref="model_hospital_case"/>
+        <field name="domain_force">[('c_ids.user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_patient'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_patient_doctor" model="ir.rule">
+        <field name="name">See Only His/Her Doctors</field>
+        <field name="model_id" ref="model_hospital_doctor"/>
+        <field name="domain_force">[('patient_ids.user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_patient'))]"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_patient_appointment" model="ir.rule">
+        <field name="name">See Only His/Her Appointments</field>
+        <field name="model_id" ref="model_hospital_appointment"/>
+        <field name="domain_force">[('c_ids.c_ids.user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_patient'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_doctor" model="ir.rule">
+        <field name="name">See Only His/Her Records</field>
+        <field name="model_id" ref="model_hospital_doctor"/>
+        <field name="domain_force">[('user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_doctor'))]"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_doctor_case" model="ir.rule">
+        <field name="name">See Only His/Her Cases</field>
+        <field name="model_id" ref="model_hospital_case"/>
+        <field name="domain_force">[('doctor.user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_doctor'))]"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_doctor_appointment" model="ir.rule">
+        <field name="name">See Only His/Her Appointment</field>
+        <field name="model_id" ref="model_hospital_appointment"/>
+        <field name="domain_force">[('c_ids.doctor.user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_doctor'))]"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_doctor_patient" model="ir.rule">
+        <field name="name">See Only His/Her Patients</field>
+        <field name="model_id" ref="model_hospital_patient"/>
+        <field name="domain_force">[('c_ids.doctor.user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_doctor'))]"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_manager_doctor" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_doctor"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_manager'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+    <record id="rule_hospital_manager_nurse" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_nurse"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_manager'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+    <record id="rule_hospital_manager_patient" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_patient"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_manager'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+    <record id="rule_hospital_manager_staff" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_staff"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_manager'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+    <record id="rule_hospital_manager_case" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_case"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_manager'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+     <record id="rule_hospital_admin_doctor" model="ir.rule">
+        <field name="name">Full Access On Records</field>
+        <field name="model_id" ref="model_hospital_doctor"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_admin'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_admin_nurse" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_nurse"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_admin'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+    <record id="rule_hospital_admin_patient" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_patient"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_admin'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+    <record id="rule_hospital_admin_staff" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_staff"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_admin'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+    <record id="rule_hospital_admin_case" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_case"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_admin'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_admin_appointment" model="ir.rule">
+        <field name="name">See All Records</field>
+        <field name="model_id" ref="model_hospital_appointment"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_admin'))]"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+    <record id="rule_hospital_nurse" model="ir.rule">
+        <field name="name">See only His/Her Records</field>
+        <field name="model_id" ref="model_hospital_nurse"/>
+        <field name="domain_force">[('user_id','=',user.id)]</field>
+        <field name="groups" eval="[(4,ref('as_hospital.group_hospital_nurse'))]"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_read" eval="1"/>
+    </record>
+
+</odoo>

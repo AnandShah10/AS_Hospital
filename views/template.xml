@@ -1,0 +1,1880 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--    Patient Page-->
+    <template id="patients_page" name="Hospital Patients">
+        <t t-call="website.layout">
+            <style>
+                .o_portal_pager {
+                flex-grow: 1;
+                text-align: center;
+                }
+
+                .icon-container {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                margin: 10px;
+                background-color: #f9f9f9;
+                }
+
+                .icon-container > div {
+                margin-left: 10px;
+                }
+            </style>
+            <div class="header" style="display:flex;flex-wrap:nowrap;">
+                <!--Patient Search Box-->
+                <div class="o_portal_pager d-flex justify-content-between justify-content-md-center mt-3">
+                    <t t-call="as_hospital.patient_search"/>
+                </div>
+                <div style="margin-top:20px !important;">
+                    <a t-att-href="'/hospital/patients/print_all/%s' % ','.join(str(patient_id) for patient_id in patients.mapped('id'))"
+                       class="fa fa-download">
+                        Download Records
+                    </a>
+                </div>
+                <div style="margin-top:20px !important;">
+                    <t t-call="as_hospital.patient_sort">
+                        <t t-set="_classes" t-valuef="d-none d-lg-inline-block"/>
+                    </t>
+
+                </div>
+                <div class="icon-container">
+                    <a href="/hospital/patients">
+                        <div class="grid btn btn-outline-dark">
+                            <i class="oi oi-apps"/>
+                        </div>
+                    </a>
+                    <a href="/hospital/patients?list_view=1">
+                        <div class="list btn btn-outline-dark">
+                            <i class="oi oi-view-list"/>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-12 row">
+                <div t-if="enable_groups" id="div_patients_page_groups" class="col-lg-3"/>
+
+                <div id="main_id" t-attf-class="row #{'col-lg-9' if enable_groups else 'col-lg-12'}
+                        justify-content-center align-items-center">
+                    <t t-if="patients" t-foreach="patients" t-as="patient">
+                        <div t-if="request.params.get('list_view') != '1'" class="col-3"
+                             style="width: 250px !important; height:250px !important;"
+                             t-attf-title="{{ patient.other_info }}">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <a t-att-href="'/hospital/patients/details/%s' % slug(patient)" itemgroup="url">
+                                <span t-field="patient.image" t-options="{'widget':'image', 'preview_image': 'image' }"
+                                      class="d-flex h-100 justify-content-center align-items-center"/>
+                                <div class="text-center" style="font-size: 20px;">
+                                    <span t-esc="patient.name"/>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <span t-esc="patient.p_id"/>
+                                </div>
+                            </a>
+                        </div>
+                        <div t-if="request.params.get('list_view') == '1'"
+                             t-attf-title="{{ patient.other_info }}">
+
+                            <div class="row mb-4">
+                                <div class="col-md-4 mb-3">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <a t-att-href="'/hospital/patients/details/%s' % slug(patient)" itemgroup="url">
+                                        <img t-if="patient.image"
+                                             t-att-src="'/web/image/hospital.patient/%s/image' % patient.id"
+                                             class="img-fluid" alt="Patient Image"/>
+                                    </a>
+                                </div>
+                                <div class="col-md-8">
+                                    <a t-att-href="'/hospital/patients/details/%s' % slug(patient)">
+                                        <div class="card" style="border:none !important;">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <span t-esc="patient.name"/>
+                                                </h5>
+                                                <p class="card-text">ID
+                                                    <span t-esc="patient.p_id"/>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                </div>
+                            </div>
+                            <hr style="background-color:black;"/>
+                        </div>
+                    </t>
+                    <t t-if="not patients">
+                        <div class="o_content mt-5">
+                            <h1 class="text-center">Record Not Found</h1>
+                            <div class="text-center">
+                                <p>We're sorry, but the record you are looking for does not exist.</p>
+                                <!-- Add any additional helpful information or links here -->
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+
+            <!-- Pager-->
+            <div t-if="pager" style="margin-top:100px !important;"
+                 class="o_portal_pager d-flex justify-content-center">
+                <t t-call="website.pager"/>
+            </div>
+        </t>
+    </template>
+
+    <!--    Patient search-->
+    <template id="patient_search" name="Patient Search Box">
+        <form t-att-action="'/hospital/patients'">
+            <input type="hidden" name="sortby" t-att-value="request.params.get('sortby')"/>
+            <input type="hidden" name="list_view" t-att-value="request.params.get('list_view')"/>
+            <t t-call="website.website_search_box">
+                <!--                <t t-set="action" t-value="'/hospital/patients'"/>-->
+            </t>
+        </form>
+    </template>
+
+    <!--    Case Page-->
+    <template id="cases_page" name="Hospital Cases">
+        <t t-call="website.layout">
+            <style>
+                .o_portal_pager {
+                flex-grow: 1;
+                text-align: center;
+                }
+
+                .icon-container {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                margin: 10px;
+                background-color: #f9f9f9;
+                }
+
+                .icon-container > div {
+                margin-left: 10px;
+                }
+            </style>
+            <div class="header" style="display:flex;flex-wrap:nowrap;">
+                <!--Case Search Box-->
+                <div class="o_portal_pager d-flex justify-content-between justify-content-md-center mt-3">
+                    <t t-call="as_hospital.case_search"/>
+                </div>
+                 <div style="margin:25px !important;">
+                    <a t-att-href="'/hospital/cases/print_all/%s' % ','.join(str(case_id) for case_id in cases.mapped('id'))"
+                       class="fa fa-download btn">
+                        Download All Records
+                    </a>
+                </div>
+                <div style="margin-top:20px !important;">
+                    <t t-call="as_hospital.case_sort">
+                        <t t-set="_classes" t-valuef="d-none d-lg-inline-block"/>
+                    </t>
+
+                </div>
+                <div class="icon-container">
+                    <a href="/hospital/cases">
+                        <div class="grid btn btn-outline-dark">
+                            <i class="oi oi-apps"/>
+                        </div>
+                    </a>
+                    <a href="/hospital/cases?list_view=1">
+                        <div class="list btn btn-outline-dark">
+                            <i class="oi oi-view-list"/>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-12 row">
+                <div t-if="enable_groups" id="div_cases_page_groups" class="col-lg-3"/>
+                <div id="main_id" t-attf-class="row #{'col-lg-9' if enable_groups else 'col-lg-12'}
+                        justify-content-center align-items-center">
+                    <t t-if="cases" t-foreach="cases" t-as="case">
+                        <div t-if="request.params.get('list_view') != '1'" class="col-3"
+                             style="width: 250px !important; height:250px !important;"
+                             t-attf-title="{{ case.c_notes }}">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <a t-att-href="'/hospital/cases/details/%s' % slug(case)" itemgroup="url">
+                                <span t-field="case.p_image" t-options="{'widget':'image', 'preview_image': 'p_image' }"
+                                      class="d-flex h-100 justify-content-center align-items-center"/>
+                                <div class="text-center" style="font-size: 20px;">
+                                    <span t-esc="case.c_id"/>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <span t-esc="case.p_name"/>
+                                </div>
+                            </a>
+                        </div>
+                        <div t-if="request.params.get('list_view') == '1'" class="list-group"
+                             t-attf-title="{{ case.c_notes }}">
+                            <div class="row mb-4">
+                                <div class="col-md-4 mb-3">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <a t-att-href="'/hospital/cases/details/%s' % slug(case)" itemgroup="url">
+                                        <img t-if="case.p_image"
+                                             t-att-src="'/web/image/hospital.case/%s/p_image' % case.id"
+                                             class="img-fluid" alt="Case Image"/>
+                                    </a>
+                                </div>
+                                <div class="col-md-8">
+                                    <a t-att-href="'/hospital/cases/details/%s' % slug(case)">
+                                        <div class="card" style="border:none !important;">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <span t-esc="case.c_id"/>
+                                                </h5>
+                                                <p class="card-text">ID
+                                                    <span t-esc="case.p_name"/>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                </div>
+                            </div>
+                            <hr style="background-color:black;"/>
+                        </div>
+                    </t>
+                    <t t-if="not cases">
+                        <div class="o_content mt-5">
+                            <h1 class="text-center">Record Not Found</h1>
+                            <div class="text-center">
+                                <p>We're sorry, but the record you are looking for does not exist.</p>
+                                <!-- Add any additional helpful information or links here -->
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+            <!-- Pager-->
+            <div t-if="pager" style="margin-top:100px !important;"
+                 class="o_portal_pager d-flex justify-content-center">
+                <t t-call="website.pager"/>
+            </div>
+        </t>
+    </template>
+
+    <!--    Case search-->
+    <template id="case_search" name="Case Search Box">
+        <form t-att-action="'/hospital/cases'">
+            <input type="hidden" name="sortby" t-att-value="request.params.get('sortby')"/>
+            <input type="hidden" name="list_view" t-att-value="request.params.get('list_view')"/>
+            <t t-call="website.website_search_box">
+                <!--                <t t-set="action" t-value="'/hospital/cases'"/>-->
+            </t>
+        </form>
+    </template>
+
+    <!--    Doctor Search-->
+    <template id="doctor_search" name="Doctor Search Box">
+        <form t-att-action="'/hospital/doctors'">
+            <!--                <t t-set="action" t-value="'/hospital/doctors'"/>-->
+            <input type="hidden" name="list_view" t-att-value="request.params.get('list_view')"/>
+            <input type="hidden" name="sortby" t-att-value="request.params.get('sortby')"/>
+
+            <t t-call="website.website_search_box">
+
+            </t>
+        </form>
+    </template>
+
+    <!--    Doctor Page-->
+    <template id="doctors_page" name="Hospital Doctors">
+        <t t-call="website.layout">
+            <style>
+                .o_portal_pager {
+                flex-grow: 1;
+                text-align: center;
+                }
+
+                .icon-container {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                margin: 10px;
+                background-color: #f9f9f9;
+                }
+
+                .icon-container > div {
+                margin-left: 10px;
+                }
+            </style>
+            <!--            <t t-set="website_sale_sortable" t-value="website._get_product_sort_mapping()"/>-->
+            <!--            <t t-set="isSortingBy"-->
+            <!--               t-value="[sort for sort in website_sale_sortable if sort[0]==request.params.get('order', '')]"/>-->
+
+            <div class="header" style="display:flex;flex-wrap:nowrap;">
+                <!--Doctor Search Box-->
+                <div class="o_portal_pager d-flex justify-content-between justify-content-md-center mt-3">
+                    <t t-call="as_hospital.doctor_search"/>
+                    <t t-set="search" t-value="search"/>
+
+                </div>
+                <div style="margin:25px !important;">
+                    <a t-att-href="'/hospital/doctors/print_all/%s' % ','.join(str(doctor_id) for doctor_id in doctors.mapped('id'))"
+                       class="fa fa-download btn">
+                        Download All Records
+                    </a>
+                </div>
+                <div style="margin-top:20px !important;">
+                    <t t-call="as_hospital.doctor_sort">
+                        <t t-set="_classes" t-valuef="d-none d-lg-inline-block"/>
+                    </t>
+
+                </div>
+
+                <div class="icon-container">
+
+                    <a href="/hospital/doctors">
+                        <div class="grid btn btn-outline-dark" aria-pressed="true">
+                            <i class="fa fa-th-large"/>
+                        </div>
+                    </a>
+                    <a href="/hospital/doctors?list_view=1">
+                        <div class="list btn btn-outline-dark" aria-pressed="true">
+                            <i class="oi oi-view-list"/>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <!--            <br/>-->
+            <!--            <div id="doctor_designation_collapse" style="overflow-x: auto; margin-left: 30px;">-->
+            <!--                <ul class="nav nav-tabs" style="display: flex; flex-wrap: nowrap;">-->
+            <!--                    <li class="nav-item" style="margin:5px;background-color: #f9f9f0;">-->
+            <!--                        <a t-att-href="'/hospital/doctors?list_view=%s' % request.params.get('list_view','')"-->
+            <!--                           t-attf-class="nav-link #{'' if designation else 'active'} o_not_editable">-->
+            <!--                            All-->
+            <!--                        </a>-->
+            <!--                    </li>-->
+            <!--                    <t t-foreach="len(designations)" t-as="des">-->
+
+            <!--                        <li class="nav-item" style="margin:5px;background-color: #f9f9f0;">-->
+            <!--                            <a t-att-href="'/hospital/doctors?designation=%s&amp;list_view=%s' % (slug(designation[des]), request.params.get('list_view'))"-->
+            <!--                               t-attf-class="nav-link #{'active' if des_val[des] == designation else ''} o_not_editable">-->
+            <!--                                <span t-esc="des_val[des]"/>-->
+            <!--&lt;!&ndash;                                <span><t t-esc="des[0]"/></span>&ndash;&gt;-->
+            <!--                            </a>-->
+            <!--                        </li>-->
+            <!--                    </t>-->
+            <!--                </ul>-->
+            <!--            </div>-->
+            <div class="col-lg-12 row mt-3">
+                <div t-if="enable_groups" id="div_doctors_page_groups" class="col-lg-3"/>
+                <div id="main_id" t-attf-class="row #{'col-lg-9' if enable_groups else 'col-lg-12'} mb-5
+                      justify-content-center align-items-center">
+
+                    <!--                                        <div t-if="original_search or doctors" class="alert alert-warning mt8">-->
+                    <!--                                            No results found for '<span t-esc="original_search"/>'. Showing results for '<span-->
+                    <!--                                                t-esc="search"/>'.-->
+                    <!--                                        </div>-->
+                    <t t-foreach="doctors" t-as="doctor">
+                        <div t-if="request.params.get('list_view') != '1'" class="col-3 mb-5"
+                             style="width: 250px !important; height:250px !important;"
+                             t-attf-title="{{ doctor.info }}">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <a t-att-href="'/hospital/doctors/details/%s' % slug(doctor)" itemgroup="url">
+                                <span t-field="doctor.d_image"
+                                      t-options="{'widget':'image', 'preview_image': 'd_image' }"
+                                      class="d-flex h-100 justify-content-center align-items-center"/>
+                                <div class="text-center" style="font-size: 20px;">
+                                    <span t-esc="doctor.doctor"/>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <span t-esc="doctor.d_id"/>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <t t-if="doctor.rating">
+                                        <t t-set="star_count" t-value="int(doctor.rating)"/>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 1"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 2"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 3"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 4"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 5"></i>
+                                    </t>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <span t-esc="doctor.case_count" class="fa fa-bookmark"/>
+                                    Cases
+                                </div>
+                            </a>
+                        </div>
+                        <div t-if="request.params.get('list_view') == '1'"
+                             t-attf-title="{{ doctor.info }}">
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <a t-att-href="'/hospital/doctors/details/%s' % slug(doctor)" itemgroup="url">
+                                        <img t-if="doctor.d_image"
+                                             t-att-src="'/web/image/hospital.doctor/%s/d_image' % doctor.id"
+                                             class="img-fluid" alt="Doctor Image"/>
+                                    </a>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card" style="border:none !important;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <a t-att-href="'/hospital/doctors/details/%s' % slug(doctor)"
+                                                   t-esc="doctor.doctor"/>
+                                            </h5>
+                                            <p class="card-text" style="font-size: 15px;">
+                                                <span t-esc="doctor.d_id"/>
+                                            </p>
+                                            <p class="card-text" style="font-size: 15px;">
+                                                <t t-if="doctor.rating">
+                                                    <t t-set="star_count" t-value="int(doctor.rating)"/>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 1"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 2"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 3"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 4"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 5"></i>
+                                                </t>
+                                            </p>
+                                            <p class="card-text" style="font-size: 15px;">
+                                                <span t-esc="doctor.case_count" class="fa fa-bookmark"/>
+                                                Cases
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="background-color:black;"/>
+                        </div>
+
+                    </t>
+                    <t t-if="not doctors">
+                        <div t-nocache="get the actual search" class="text-center text-muted mt128 mb256">
+                            <t t-if="not search">
+                                <h3 class="mt8">No Records Available</h3>
+                                <p t-if="category">No product defined in this category.</p>
+                            </t>
+                            <t t-else="">
+                                <h3 class="mt8">No results</h3>
+                                <p>No results for "<strong t-esc='search'/>"
+                                    <t t-if="speciality">in speciality "<strong t-esc="speciality.name"/>"
+                                    </t>
+                                    .
+                                </p>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </div>
+            <div t-if="pager" style="margin-top:100px !important;"
+                 class="o_portal_pager d-flex justify-content-center">
+                <t t-call="website.pager"/>
+            </div>
+        </t>
+    </template>
+
+    <!--    Patient Detail page-->
+    <template id="patient_details" name="Patient Detail">
+        <t t-call="website.layout">
+            <div class="col-md-4" style="margin:18px;float:left;">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/hospital/patients">Patients</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <span t-field="patient.name"/>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-md-4" style="margin:35px;float:right;">
+                <a t-attf-href="/hospital/patients/print/{{ patient.id }}"
+                   class="fa fa-download" style="float:right;">
+                    Download
+                </a>
+            </div>
+            <div class="col-12 row">
+                <div class="col-8 text-center" style="margin-top:38px;">
+                    <img style="height:258px;height:258px;border-radius:28px;"
+                         t-att-src="'/web/image/hospital.patient/%s/image' % patient.id"
+                         alt="Image"/>
+                </div>
+                <div class="col-4 pull-left" style="margin-top:32px;">
+
+                    <h4 class="mb-1">
+                        <b t-esc="patient.name"/>
+                    </h4>
+                    <br/>
+                    <div class="d-flex align-items-center mb-1" title="Patient ID">
+                        <div class="fa fa-id-badge fa-fw mr-1"></div>
+                        <span t-esc="patient.p_id"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1" title="Date Of Birth">
+                        <div class="fa fa-calendar fa-fw mr-1"></div>
+                        <span t-esc="patient.dob"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1" title="Age">
+                        <div class="fa fa-hourglass fa-fw mr-1"></div>
+                        <span t-esc="patient.age"/>
+                        Years Old
+                    </div>
+                    <div t-if="patient.gender=='male'" title="Gender"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-male fa-fw mr-1"></div>
+                        <span t-field="patient.gender"/>
+                    </div>
+                    <div t-if="patient.gender=='female'" title="Gender"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-female fa-fw mr-1"></div>
+                        <span t-field="patient.gender"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1" title="Blood Group">
+                        <div class="fa fa-tint fa-fw mr-1"></div>
+                        <span t-esc="patient.blood_group"/>
+                    </div>
+                    <div t-if="patient.is_married" title="Marital Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-heart fa-fw mr-1"></div>
+                        <span>Married</span>
+                    </div>
+                    <div t-if="not patient.is_married" title="Marital Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-user-times fa-fw mr-1"></div>
+                        <span>Not Married</span>
+                    </div>
+                    <div t-if="patient.father_name" class="d-flex align-items-center mb-1" title="Father Name">
+                        <div class="fa fa-user fa-fw mr-1" style="color:blue; !important"></div>
+                        <span t-esc="patient.father_name"/>
+                    </div>
+                    <div t-if="patient.mother_name" class="d-flex align-items-center mb-1" title="Mother Name">
+                        <div class="fa fa-user fa-fw mr-1" style="color:pink; !important"></div>
+                        <span t-esc="patient.mother_name"/>
+                    </div>
+                    <div t-if="patient.guardian_name and patient.is_child"
+                         class="d-flex align-items-center mb-1" title="Guardian Name">
+                        <div class="fa fa-user-secret fa-fw mr-1"></div>
+                        <span t-esc="patient.guardian_name"/>
+                    </div>
+                    <div t-if="patient.maiden_name and patient.is_married"
+                         class="d-flex align-items-center mb-1" title="Maiden Name">
+                        <div class="fa fa-user fa-fw mr-1" style="color:green; !important"></div>
+                        <span t-esc="patient.maiden_name"/>
+                    </div>
+                    <div t-if="patient.email" title="Email Address"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-envelope fa-fw mr-1"></div>
+                        <a t-att-href="'mailto:'+patient.email" t-esc="patient.email"/>
+                    </div>
+                    <div t-if="patient.mobile_no" title="Mobile No"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-phone fa-fw mr-1"></div>
+                        <span t-esc="patient.mobile_no"/>
+                    </div>
+                    <div t-if="patient.address" title="Address"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-map-marker fa-fw mr-1"></div>
+                        <a t-att-href="'https://www.google.com/maps/search/' + patient.address.replace(' ', '%20').replace(',', '%2C').replace('/', '%2F').replace(':', '%3A').replace(';', '%3B').replace('|', '%7C')">
+                            <span t-esc="patient.address"/>
+                        </a>
+                    </div>
+                    <div t-if="patient.doctor_ids"
+                         class="d-flex flex-wrap align-items-center mb-1">
+                        <div class="fa fa-users fa-fw mr-1" title="Doctors"></div>
+                        <t t-foreach="patient.doctor_ids" t-as="doc">
+                            <a t-att-href="'/hospital/doctors/details/%s' % slug(doc)"
+                               style="display: inline-block; background-color: #DCDCDC;
+                                padding: 5px 10px; margin-right: 5px; margin-bottom: 5px;
+                                border-radius: 20px; font-family: Arial, sans-serif;
+                                font-size: 14px;">
+                                <span t-field="doc.doctor"/>
+                            </a>
+
+                        </t>
+                        <!--                        <span t-field="patient.doctor_ids.id" t-options="{'widget':'many2many_tags'}"/>-->
+                    </div>
+                    <div t-if='patient.c_ids' class="d-flex flex-nowrap align-items-center mb-1">
+                        <!--                        <label>Cases</label>-->
+                        <button type="button" class="fa fa-list collapsed"
+                                style="border: none;background: none;padding: 0;
+                                cursor: pointer;color: inherit;outline: inherit;"
+                                data-bs-target="#case_list_collapse" data-bs-toggle="collapse"
+                                aria-expanded="false" aria-controls="case_list_collapse">
+                            Cases
+                        </button>
+                    </div>
+                    <div class="collapse" id="case_list_collapse">
+                        <ul>
+                            <t t-foreach="patient.c_ids" t-as="app">
+                                <li>
+                                    <a t-att-href="'/hospital/cases/details/%s' % slug(app)">
+                                        <span t-esc="app.c_id"/>
+                                    </a>
+                                    <t t-if="app.state">
+                                        ---
+                                        <span t-field="app.state" style="border-radius:25px;"/>
+                                    </t>
+                                </li>
+                            </t>
+                        </ul>
+                    </div>
+
+                </div>
+                <div t-if="patient.notes" title="Notes"
+                     class="d-flex flex-nowrap align-items-center mb-1">
+                    <div class="fa fa-note fa-fw mr-1"></div>
+                    <span t-esc="patient.notes"/>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!--    Case Detail page-->
+    <template id="case_details" name="Case Detail">
+        <t t-call="website.layout">
+            <div class="col-md-4" style="margin:18px;float:left;">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/hospital/cases">Cases</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <span t-field="case.c_id"/>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-md-4" style="margin:35px;float:right;">
+                <t t-if="case.is_paid">
+                    <a t-attf-href="/hospital/cases/print/{{ case.id }}"
+                       class="fa fa-download btn" style="float:left;">
+                        Download
+                    </a>
+                    <a t-attf-href="/hospital/cases/print_payment/{{ case.id }}"
+                       class="fa fa-file-pdf-o btn" style="float:right;">
+                        Get Receipt
+                    </a>
+                </t>
+                <t t-else="">
+                    <a t-attf-href="/hospital/cases/print/{{ case.id }}"
+                       class="fa fa-download" style="float:right;">
+                        Download
+                    </a>
+                </t>
+
+            </div>
+            <div class="col-12 row">
+                <div class="col-8 text-center" style="margin-top:38px;">
+                    <img style="height:258px;height:258px;border-radius:28px;"
+                         t-att-src="'/web/image/hospital.case/%s/p_image' % case.id"
+                         alt="Image"/>
+                </div>
+                <div class="col-4 pull-left" style="margin-top:32px;">
+                    <h4 class="mb-1">
+                        <b t-esc="case.c_id"/>
+                    </h4>
+                    <br/>
+                    <div class="d-flex align-items-center mb-1" title="Patient Name">
+                        <div class="fa fa-user fa-fw mr-1"></div>
+                        <a t-att-href="'/hospital/patients/details/%s' % slug(case.c_ids)">
+                            <span t-esc="case.p_name"/>
+                        </a>
+                    </div>
+                    <div class="d-flex align-items-center mb-1" title="Patient ID">
+                        <div class="fa fa-id-badge fa-fw mr-1"></div>
+                        <a t-att-href="'/hospital/patients/details/%s' % slug(case.c_ids)">
+                            <span t-esc="case.p_id"/>
+                        </a>
+                    </div>
+                    <div t-if="state" class="d-flex align-items-center mb-1" title="Case Status">
+                        <div class="fa fa-info-circle fa-fw mr-1"></div>
+                        <span t-esc="case.state"/>
+                    </div>
+                    <div t-if="case.doctor"
+                         class="d-flex align-items-center mb-1" title="Doctor Name">
+                        <div class="fa fa-user-md fa-fw mr-1"></div>
+                        <a t-att-href="'/hospital/doctors/details/%s' % slug(case.doctor)">
+                            <span t-esc="case.doctor.doctor"/>
+                        </a>
+                    </div>
+                    <div t-if="case.total_fee"
+                         class="d-flex align-items-center mb-1" title="Doctor Fees (18% Tax)">
+                        <div class="fa fa-stethoscope fa-fw mr-1"></div>
+                        ₹
+                        <span t-esc="case.total_fee"/>
+                    </div>
+                    <div t-if="case.progress_rate" title="Progress Rate"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-line-chart fa-fw mr-1"></div>
+                        <span t-esc="case.progress_rate"/>%
+                    </div>
+                    <div t-if="case.criticality" title="Case Criticality"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-exclamation-triangle fa-fw mr-1"></div>
+                        <span t-esc="case.criticality"/>
+                    </div>
+                    <div t-if="case.prev_illness" title="Previous Illness"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-history fa-fw mr-1"></div>
+                        <span t-esc="case.prev_illness"/>
+                    </div>
+                    <div t-if="case.curr_illness" title="Current Illness"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-medkit fa-fw mr-1"></div>
+                        <span t-esc="case.curr_illness"/>
+                    </div>
+                    <div t-if="case.is_admitted" title="Admission Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-hospital-o fa-fw mr-1"></div>
+                        <span>Admitted</span>
+                    </div>
+                    <div t-if="not case.is_admitted" title="Admission Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-home fa-fw mr-1"></div>
+                        <span>Not Admitted</span>
+                    </div>
+                    <div t-if="case.final_total"
+                         class="d-flex align-items-center mb-1"
+                         title="Total Payment Amount (18% Tax)">
+                        <div class="fa fa-money fa-fw mr-1"></div>
+                        <span t-esc="case.final_total"/>₹
+                    </div>
+                    <div t-if="case.is_paid" title="Payment Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-check-circle fa-fw mr-1"></div>
+                        <span>Paid</span>
+                    </div>
+                    <div t-if="not case.is_paid" title="Payment Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-times fa-fw mr-1"></div>
+                        <span>Not Paid</span>
+                    </div>
+                    <div t-if='case.prescription_ids'
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <!--                        <label>Cases</label>-->
+                        <button type="button" class="fa fa-pills collapsed"
+                                style="border: none;background: none;padding: 0;
+                                cursor: pointer;color: inherit;outline: inherit;"
+                                data-bs-target="#medicine_list_collapse" data-bs-toggle="collapse"
+                                aria-expanded="false" aria-controls="medicine_list_collapse">
+                            Medicines
+                        </button>
+                    </div>
+                    <div class="collapse" id="medicine_list_collapse">
+                        <table class="table">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                            <tr t-foreach="case.prescription_ids" t-as="app"
+                                scope="row">
+                                <td t-esc="app.name"/>
+                                <td t-esc="app.quant"/>
+                                <td t-esc="app.price"/>
+                                <td t-esc="app.total"/>
+                            </tr>
+                        </table>
+                    </div>
+                    <div t-if='case.a_ids' class="d-flex flex-nowrap align-items-center mb-1">
+                        <!--                        <label>Cases</label>-->
+                        <button type="button" class="fa fa-calendar-o collapsed"
+                                style="border: none;background: none;padding: 0;
+                                cursor: pointer;color: inherit;outline: inherit;"
+                                data-bs-target="#appointment_list_collapse" data-bs-toggle="collapse"
+                                aria-expanded="false" aria-controls="appointment_list_collapse">
+                            Appointments
+                        </button>
+                    </div>
+                    <div class="collapse" id="appointment_list_collapse">
+                        <ul>
+                            <t t-foreach="case.a_ids" t-as="app">
+                                <li>
+                                    <span t-esc="app.a_id"/>
+                                    <t t-if="app.appointment_date">
+                                        --- Date:
+                                        <span t-field="app.appointment_date"
+                                              style="border-radius:25px;"/>
+                                    </t>
+                                </li>
+                            </t>
+                        </ul>
+                    </div>
+                    <div t-if="case.m_notes" title="Medical Notes"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-comment fa-fw mr-1"></div>
+                        <span t-esc="case.m_notes"/>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!--    Doctor Detail Page-->
+    <template id="doctor_details" name="Doctor Detail">
+        <t t-call="website.layout">
+            <div class="col-md-4" style="margin:18px;float:left;">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/hospital/doctors">Doctors</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <span t-field="doctor.doctor"/>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-md-4" style="margin:35px;float:right;">
+                <a t-attf-href="/hospital/doctors/print/{{ doctor.id }}"
+                   class="fa fa-download" style="float:right;">
+                    Download
+                </a>
+            </div>
+            <div class="col-12 row">
+                <div class="col-8 text-center" style="margin-top:38px;">
+                    <img style="height:258px;height:258px;border-radius:28px;"
+                         t-att-src="'/web/image/hospital.doctor/%s/d_image' % doctor.id"
+                         alt="Image"/>
+                </div>
+                <div class="col-4 pull-left" style="margin-top:32px;">
+                    <h4 class="mb-1">
+                        <b t-esc="doctor.doctor"/>
+                    </h4>
+                    <br/>
+                    <div class="d-flex align-items-center mb-1" title="Doctor ID">
+                        <div class="fa fa-id-badge fa-fw mr-1"></div>
+                        <span t-esc="doctor.d_id"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Date Of Birth">
+                        <div class="fa fa-calendar fa-fw mr-1"></div>
+                        <span t-esc="doctor.d_dob"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Age">
+                        <div class="fa fa-hourglass fa-fw mr-1"></div>
+                        <span t-esc="doctor.d_age"/>
+                        Years Old
+                    </div>
+                    <div t-if="doctor.d_gender=='male'" title="Gender"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-male fa-fw mr-1"></div>
+                        <span t-field="doctor.d_gender"/>
+                    </div>
+                    <div t-if="doctor.d_gender=='female'" title="Gender"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-female fa-fw mr-1"></div>
+                        <span t-field="doctor.d_gender"/>
+                    </div>
+                    <div t-if="doctor.designation" title="Designation"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-user-md fa-fw mr-1"></div>
+                        <span t-field="doctor.designation"/>
+                    </div>
+                    <div t-if="doctor.qualifications" title="Qualifications"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-graduation-cap fa-fw mr-1"></div>
+                        <span t-field="doctor.qualifications.name"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Experience">
+                        <div class="fa fa-briefcase fa-fw mr-1"></div>
+                        <span t-esc="doctor.exp"/>
+                    </div>
+                    <div t-if="doctor.joining_date" title="Joining Date"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-calendar-plus-o fa-fw mr-1"></div>
+                        <span t-esc="doctor.joining_date"/>
+                    </div>
+                    <div t-if="doctor.leaving_date and (not doctor.active)"
+                         title="Leaving Date"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-calendar-minus-o fa-fw mr-1"></div>
+                        <span t-esc="doctor.leaving_date"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1" title="Salary">
+                        <div class="fa fa-money fa-fw mr-1"></div>
+                        <span t-field="doctor.salary"/>
+                    </div>
+                    <div t-if="doctor.is_married" title="Marital Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-heart fa-fw mr-1"></div>
+                        <span>Married</span>
+                    </div>
+                    <div t-if="not doctor.is_married" title="Marital Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-user-times fa-fw mr-1"></div>
+                        <span>Not Married</span>
+                    </div>
+                    <div t-if="doctor.d_email" title="Email Address"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-envelope fa-fw mr-1"></div>
+                        <a t-att-href="'mailto:'+doctor.d_email" t-esc="doctor.d_email"/>
+                    </div>
+                    <div t-if="doctor.doc_mob" title="Mobile No."
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-phone fa-fw mr-1"></div>
+                        <span t-esc="doctor.doc_mob"/>
+                    </div>
+                    <!--                    <div t-if="doctor.info" title="Email"-->
+                    <!--                         class="d-flex flex-nowrap align-items-center mb-1">-->
+                    <!--                        <div class="fa fa-info-circle fa-fw mr-1"></div>-->
+                    <!--                        <span t-esc="doctor.info"/>-->
+                    <!--                    </div>-->
+                    <div t-if="doctor.patient_ids"
+                         class="d-flex flex-wrap align-items-center mb-1">
+                        <div class="fa fa-users fa-fw mr-1" title="Patients"></div>
+                        <t t-foreach="doctor.patient_ids" t-as="doc">
+                            <a t-att-href="'/hospital/patients/details/%s' % slug(doc)"
+                               style="display: inline-block; background-color: #DCDCDC;
+                                padding: 5px 10px; margin-right: 5px; margin-bottom: 5px;
+                                border-radius: 20px; font-family: Arial, sans-serif;
+                                font-size: 14px;">
+                                <span t-field="doc.name"/>
+                            </a>
+
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!--    Nurse Search-->
+    <template id="nurse_search" name="Nurse Search Box">
+        <form t-att-action="'/hospital/nurses'">
+            <input type="hidden" name="list_view" t-att-value="request.params.get('list_view')"/>
+            <input type="hidden" name="sortby" t-att-value="request.params.get('sortby')"/>
+
+            <t t-call="website.website_search_box">
+                <!--                <t t-set="action" t-value="'/hospital/nurses'"/>-->
+            </t>
+        </form>
+    </template>
+
+    <!--    Nurse Page-->
+    <template id="nurses_page" name="Hospital Nurses">
+        <t t-call="website.layout">
+            <style>
+                .o_portal_pager {
+                flex-grow: 1;
+                text-align: center;
+                }
+
+                .icon-container {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                margin: 10px;
+                background-color: #f9f9f9;
+                }
+
+                .icon-container > div {
+                margin-left: 10px;
+                }
+            </style>
+            <div class="header" style="display:flex;flex-wrap:nowrap;">
+                <!--Nurse Search Box-->
+                <div class="o_portal_pager d-flex justify-content-between justify-content-md-center mt-3">
+                    <t t-call="as_hospital.nurse_search"/>
+                </div>
+                 <div style="margin:25px !important;">
+                    <a t-att-href="'/hospital/nurses/print_all/%s' % ','.join(str(nurse_id) for nurse_id in nurses.mapped('id'))"
+                       class="fa fa-download btn">
+                        Download All Records
+                    </a>
+                </div>
+                <div style="margin-top:20px !important;">
+                    <t t-call="as_hospital.nurse_sort">
+                        <t t-set="_classes" t-valuef="d-none d-lg-inline-block"/>
+                    </t>
+
+                </div>
+
+                <div class="icon-container">
+                    <a href="/hospital/nurses">
+                        <div class="grid btn btn-outline-dark" aria-pressed="true">
+                            <i class="fa fa-th-large"/>
+                        </div>
+                    </a>
+                    <a href="/hospital/nurses?list_view=1">
+                        <div class="list btn btn-outline-dark" aria-pressed="true">
+                            <i class="oi oi-view-list"/>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-12 row mt-3">
+                <div t-if="enable_groups" id="div_nurses_page_groups" class="col-lg-3"/>
+                <div id="main_id" t-attf-class="row #{'col-lg-9' if enable_groups else 'col-lg-12'} mb-5
+                      justify-content-center align-items-center">
+                    <t t-foreach="nurses" t-as="nurse">
+                        <div t-if="request.params.get('list_view') != '1'" class="col-3 mb-5"
+                             style="width: 250px !important; height:250px !important;"
+                             t-attf-title="{{ nurse.info }}">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <a t-att-href="'/hospital/nurses/details/%s' % slug(nurse)" itemgroup="url">
+                                <span t-field="nurse.n_image"
+                                      t-options="{'widget':'image', 'preview_image': 'n_image' }"
+                                      class="d-flex h-100 justify-content-center align-items-center"/>
+                                <div class="text-center" style="font-size: 20px;">
+                                    <span t-esc="nurse.name"/>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <span t-esc="nurse.n_id"/>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <t t-if="nurse.rating">
+                                        <t t-set="star_count" t-value="int(nurse.rating)"/>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 1"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 2"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 3"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 4"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 5"></i>
+                                    </t>
+                                </div>
+                            </a>
+                        </div>
+                        <div t-if="request.params.get('list_view') == '1'"
+                             t-attf-title="{{ nurse.info }}">
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <a t-att-href="'/hospital/nurses/details/%s' % slug(nurse)" itemgroup="url">
+                                        <img t-if="nurse.n_image"
+                                             t-att-src="'/web/image/hospital.nurse/%s/n_image' % nurse.id"
+                                             class="img-fluid" alt="Nurse Image"/>
+                                    </a>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card" style="border:none !important;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <a t-att-href="'/hospital/nurses/details/%s' % slug(nurse)"
+                                                   t-esc="nurse.name"/>
+                                            </h5>
+                                            <p class="card-text" style="font-size: 15px;">
+                                                <span t-esc="nurse.n_id"/>
+                                            </p>
+                                            <p class="card-text" style="font-size: 15px;">
+                                                <t t-if="nurse.rating">
+                                                    <t t-set="star_count" t-value="int(nurse.rating)"/>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 1"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 2"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 3"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 4"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 5"></i>
+                                                </t>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="background-color:black;"/>
+                        </div>
+                    </t>
+                    <t t-if="not nurses">
+                        <div class="o_content mt-5">
+                            <h1 class="text-center">Record Not Found</h1>
+                            <div class="text-center">
+                                <p>We're sorry, but the record you are looking for does not exist.</p>
+                                <!-- Add any additional helpful information or links here -->
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+            <div t-if="pager" style="margin-top:100px !important;"
+                 class="o_portal_pager d-flex justify-content-center">
+                <t t-call="website.pager"/>
+            </div>
+        </t>
+    </template>
+
+    <!--Doctor Groups-->
+    <template id="doctor_groups" inherit_id="as_hospital.doctors_page"
+              active="False"
+              customize_show="True" name="Doctor Speciality">
+        <xpath expr="//div[@id='div_doctors_page_groups']" position="before">
+            <t t-set="enable_groups" t-value="True"/>
+        </xpath>
+        <xpath expr="//div[@id='div_doctors_page_groups']" position="inside">
+            <button type="button" class="btn btn-link d-lg-none"
+                    data-bs-target="#doctor_speciality_collapse" data-bs-toggle="collapse"
+                    aria-expanded="false" aria-controls="doctor_speciality_collapse">
+                Show Specialities
+            </button>
+            <div class="collapse d-lg-block" id="doctor_speciality_collapse">
+                <ul class="nav nav-pills flex-column mb-2">
+                    <li class="nav-item">
+                        <a t-att-href="'/hospital/doctors?list_view=%s' % request.params.get('list_view', '')"
+                           t-attf-class="nav-link #{'' if speciality else 'active'} o_not_editable">
+                            All Doctors
+                        </a>
+                    </li>
+                    <t t-foreach="groups" t-as="group">
+                        <li class="nav-item">
+                            <a t-att-href="'/hospital/doctors/speciality/%s?list_view=%s' % (slug(group), request.params.get('list_view', ''))"
+                               t-attf-class="nav-link #{'active' if group.id == speciality.id else ''}
+                            o_not_editable">
+                                <span t-field="group.name"/>
+                            </a>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </xpath>
+    </template>
+
+    <!--    Nurse Detail Page-->
+    <template id="nurse_details" name="Nurse Detail">
+        <t t-call="website.layout">
+            <div class="col-md-4" style="margin:18px;float:left;">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/hospital/nurses">Nurses</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <span t-field="nurse.name"/>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-md-4" style="margin:35px;float:right;">
+                <a t-attf-href="/hospital/nurses/print/{{ nurse.id }}"
+                   class="fa fa-download" style="float:right;">
+                    Download
+                </a>
+            </div>
+            <div class="col-12 row">
+                <div class="col-8 text-center" style="margin-top:38px;">
+                    <img style="height:258px;height:258px;border-radius:28px;"
+                         t-att-src="'/web/image/hospital.nurse/%s/n_image' % nurse.id"
+                         alt="Image"/>
+                </div>
+                <div class="col-4 pull-left" style="margin-top:32px;">
+                    <h4 class="mb-1">
+                        <b t-esc="nurse.name"/>
+                    </h4>
+                    <br/>
+                    <div class="d-flex align-items-center mb-1" title="Nurse ID">
+                        <div class="fa fa-id-badge fa-fw mr-1"></div>
+                        <span t-esc="nurse.n_id"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Date Of Birth">
+                        <div class="fa fa-calendar fa-fw mr-1"></div>
+                        <span t-esc="nurse.n_dob"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Age">
+                        <div class="fa fa-hourglass fa-fw mr-1"></div>
+                        <span t-esc="nurse.n_age"/>
+                        Years Old
+                    </div>
+                    <div t-if="nurse.n_gender=='male'" title="Gender"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-male fa-fw mr-1"></div>
+                        <span t-field="nurse.n_gender"/>
+                    </div>
+                    <div t-if="nurse.n_gender=='female'" title="Gender"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-female fa-fw mr-1"></div>
+                        <span t-field="nurse.n_gender"/>
+                    </div>
+                    <div t-if="nurse.designation" title="Designation"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-user-md fa-fw mr-1"></div>
+                        <span t-field="nurse.designation"/>
+                    </div>
+                    <div t-if="nurse.qualifications" title="Qualifications"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-graduation-cap fa-fw mr-1"></div>
+                        <span t-field="nurse.qualifications.name"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Experience">
+                        <div class="fa fa-briefcase fa-fw mr-1"></div>
+                        <span t-esc="nurse.exp"/>
+                    </div>
+                    <div t-if="nurse.joining_date" title="Joining Date"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-calendar-plus-o fa-fw mr-1"></div>
+                        <span t-esc="nurse.joining_date"/>
+                    </div>
+                    <div t-if="nurse.leaving_date and (not nurse.active)"
+                         title="Leaving Date"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-calendar-minus-o fa-fw mr-1"></div>
+                        <span t-esc="nurse.leaving_date"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1" title="Salary">
+                        <div class="fa fa-money fa-fw mr-1"></div>
+                        <span t-field="nurse.salary"/>
+                    </div>
+                    <div t-if="nurse.is_married" title="Marital Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-heart fa-fw mr-1"></div>
+                        <span>Married</span>
+                    </div>
+                    <div t-if="not nurse.is_married" title="Marital Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-user-times fa-fw mr-1"></div>
+                        <span>Not Married</span>
+                    </div>
+                    <div t-if="nurse.n_email" title="Email Address"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-envelope fa-fw mr-1"></div>
+                        <a t-att-href="'mailto:'+nurse.n_email" t-esc="nurse.n_email"/>
+                    </div>
+                    <div t-if="nurse.n_mob" title="Mobile No."
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-phone fa-fw mr-1"></div>
+                        <span t-esc="nurse.n_mob"/>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!--Nurse Groups-->
+    <template id="nurse_groups" inherit_id="as_hospital.nurses_page"
+              active="False"
+              customize_show="True" name="Nurse Speciality">
+        <xpath expr="//div[@id='div_nurses_page_groups']" position="before">
+            <t t-set="enable_groups" t-value="True"/>
+        </xpath>
+        <xpath expr="//div[@id='div_nurses_page_groups']" position="inside">
+            <button type="button" class="btn btn-link d-lg-none"
+                    data-bs-target="#nurse_speciality_collapse" data-bs-toggle="collapse"
+                    aria-expanded="false" aria-controls="nurse_speciality_collapse">
+                Show Specialities
+            </button>
+            <div class="collapse d-lg-block" id="nurse_speciality_collapse">
+                <ul class="nav nav-pills flex-column mb-2">
+                    <li class="nav-item">
+                        <a t-att-href="'/hospital/nurses?list_view=%s' % request.params.get('list_view', '')"
+                           t-attf-class="nav-link #{'' if speciality else 'active'} o_not_editable">
+                            All Nurses
+                        </a>
+                    </li>
+                    <t t-foreach="groups" t-as="group">
+                        <li class="nav-item">
+                            <a t-att-href="'/hospital/nurses/speciality/%s?list_view=%s' % (slug(group), request.params.get('list_view', ''))"
+                               t-attf-class="nav-link #{'active' if group.id == speciality.id else ''}
+                            o_not_editable">
+                                <span t-field="group.name"/>
+                            </a>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </xpath>
+    </template>
+
+    <!--    Staff Search-->
+    <template id="staff_search" name="Staff Search Box">
+        <form t-att-action="'/hospital/staff'">
+            <input type="hidden" name="list_view" t-att-value="request.params.get('list_view', '')"/>
+            <input type="hidden" name="sortby" t-att-value="request.params.get('sortby')"/>
+
+            <t t-call="website.website_search_box">
+                <!--                <t t-set="action" t-value="'/hospital/staff'"/>-->
+            </t>
+        </form>
+    </template>
+
+    <!-- Staff Page-->
+    <template id="staff_page" name="Hospital Staff">
+        <t t-call="website.layout">
+            <style>
+                .o_portal_pager {
+                flex-grow: 1;
+                text-align: center;
+                }
+
+                .icon-container {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                margin: 10px;
+                background-color: #f9f9f9;
+                }
+
+                .icon-container > div {
+                margin-left: 10px;
+                }
+            </style>
+            <div class="header" style="display:flex;flex-wrap:nowrap;">
+                <!--Staff Search Box-->
+                <div class="o_portal_pager d-flex justify-content-between justify-content-md-center mt-3">
+                    <t t-call="as_hospital.staff_search"/>
+                </div>
+                <div style="margin-top:20px !important;">
+                    <t t-call="as_hospital.staff_sort">
+                        <t t-set="_classes" t-valuef="d-none d-lg-inline-block"/>
+                    </t>
+
+                </div>
+
+                <div class="icon-container">
+                    <a href="/hospital/staff">
+                        <div class="grid btn btn-outline-dark" aria-pressed="true">
+                            <i class="fa fa-th-large"/>
+                        </div>
+                    </a>
+                    <a href="/hospital/staff?list_view=1">
+                        <div class="list btn btn-outline-dark" aria-pressed="true">
+                            <i class="oi oi-view-list"/>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-12 row mt-3">
+                <div t-if="enable_groups" id="div_staff_page_groups" class="col-lg-3"/>
+                <div id="main_id" t-attf-class="row #{'col-lg-9' if enable_groups else 'col-lg-12'} mb-5
+                      justify-content-center align-items-center">
+                    <t t-foreach="staff_member" t-as="staff">
+                        <div t-if="request.params.get('list_view') != '1'" class="col-3 mb-5"
+                             style="width: 250px !important; height:250px !important;"
+                             t-attf-title="{{ staff.info }}">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <a t-att-href="'/hospital/staff/details/%s' % slug(staff)" itemgroup="url">
+                                <span t-field="staff.s_image"
+                                      t-options="{'widget':'image', 'preview_image': 's_image' }"
+                                      class="d-flex h-100 justify-content-center align-items-center"/>
+                                <div class="text-center" style="font-size: 20px;">
+                                    <span t-esc="staff.name"/>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <span t-esc="staff.staff_id"/>
+                                </div>
+                                <div class="text-center" style="font-size: 15px;">
+                                    <t t-if="staff.rating">
+                                        <t t-set="star_count" t-value="int(staff.rating)"/>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 1"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 2"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 3"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 4"></i>
+                                        <i class="fa fa-star" t-if="star_count &gt;= 5"></i>
+                                    </t>
+                                </div>
+                            </a>
+                        </div>
+                        <div t-if="request.params.get('list_view') == '1'"
+                             t-attf-title="{{ staff.info }}">
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <a t-att-href="'/hospital/staff/details/%s' % slug(staff)" itemgroup="url">
+                                        <img t-if="staff.s_image"
+                                             t-att-src="'/web/image/hospital.staff/%s/s_image' % staff.id"
+                                             class="img-fluid" alt="Staff Image"/>
+                                    </a>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card" style="border:none !important;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <a t-att-href="'/hospital/staff/details/%s' % slug(staff)"
+                                                   t-esc="staff.name"/>
+                                            </h5>
+                                            <p class="card-text" style="font-size: 15px;">
+                                                <span t-esc="staff.staff_id"/>
+                                            </p>
+                                            <p class="card-text" style="font-size: 15px;">
+                                                <t t-if="staff.rating">
+                                                    <t t-set="star_count" t-value="int(staff.rating)"/>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 1"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 2"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 3"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 4"></i>
+                                                    <i class="fa fa-star" t-if="star_count &gt;= 5"></i>
+                                                </t>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="background-color:black;"/>
+                        </div>
+
+                    </t>
+                    <t t-if="not staff">
+                        <div class="o_content mt-5">
+                            <h1 class="text-center">Record Not Found</h1>
+                            <div class="text-center">
+                                <p>We're sorry, but the record you are looking for does not exist.</p>
+                                <!-- Add any additional helpful information or links here -->
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+            <div t-if="pager" style="margin-top:100px !important;"
+                 class="o_portal_pager d-flex justify-content-center">
+                <t t-call="website.pager"/>
+            </div>
+        </t>
+    </template>
+
+    <!--    Staff Detail Page-->
+    <template id="staff_details" name="Staff Detail">
+        <t t-call="website.layout">
+            <div class="col-md-4" style="margin:18px;">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/hospital/staff">Staff</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <span t-field="staff.name"/>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-12 row">
+                <div class="col-8 text-center" style="margin-top:38px;">
+                    <img style="height:258px;height:258px;border-radius:28px;"
+                         t-att-src="'/web/image/hospital.staff/%s/s_image' % staff.id"
+                         alt="Image"/>
+                </div>
+                <div class="col-4 pull-left" style="margin-top:32px;">
+                    <h4 class="mb-1">
+                        <b t-esc="staff.name"/>
+                    </h4>
+                    <br/>
+                    <div class="d-flex align-items-center mb-1" title="Staff ID">
+                        <div class="fa fa-id-badge fa-fw mr-1"></div>
+                        <span t-esc="staff.staff_id"/>
+                    </div>
+                    <div class="d-flex align-items-center mb-1" title="Role ID">
+                        <div class="fa fa-id-card fa-fw mr-1"></div>
+                        <span t-esc="staff.role_id"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Date Of Birth">
+                        <div class="fa fa-calendar fa-fw mr-1"></div>
+                        <span t-esc="staff.s_dob"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Age">
+                        <div class="fa fa-hourglass fa-fw mr-1"></div>
+                        <span t-esc="staff.s_age"/>
+                        Years Old
+                    </div>
+                    <div t-if="staff.s_gender=='male'" title="Gender"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-male fa-fw mr-1"></div>
+                        <span t-field="staff.s_gender"/>
+                    </div>
+                    <div t-if="staff.s_gender=='female'" title="Gender"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-female fa-fw mr-1"></div>
+                        <span t-field="staff.s_gender"/>
+                    </div>
+                    <div t-if="staff.d_designation" title="Designation"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-user-md fa-fw mr-1"></div>
+                        <span t-field="staff.d_designation"/>
+                    </div>
+                    <div t-if="staff.n_designation" title="Designation"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-user-md fa-fw mr-1"></div>
+                        <span t-field="staff.n_designation"/>
+                    </div>
+                    <div t-if="staff.d_qualifications" title="Qualifications"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-graduation-cap fa-fw mr-1"></div>
+                        <span t-field="staff.d_qualifications.name"/>
+                    </div>
+                    <div t-if="staff.n_qualifications" title="Qualifications"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-graduation-cap fa-fw mr-1"></div>
+                        <span t-field="staff.n_qualifications.name"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1"
+                         title="Experience">
+                        <div class="fa fa-briefcase fa-fw mr-1"></div>
+                        <span t-esc="staff.exp"/>
+                    </div>
+                    <div t-if="staff.joining_date" title="Joining Date"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-calendar-plus-o fa-fw mr-1"></div>
+                        <span t-esc="staff.joining_date"/>
+                    </div>
+                    <div t-if="staff.leaving_date and (not doctor.active)"
+                         title="Leaving Date"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-calendar-minus-o fa-fw mr-1"></div>
+                        <span t-esc="staff.leaving_date"/>
+                    </div>
+                    <div class="d-flex flex-nowrap align-items-center mb-1" title="Salary">
+                        <div class="fa fa-money fa-fw mr-1"></div>
+                        <span t-field="staff.salary"/>
+                    </div>
+                    <div t-if="staff.is_married" title="Marital Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-heart fa-fw mr-1"></div>
+                        <span>Married</span>
+                    </div>
+                    <div t-if="not staff.is_married" title="Marital Status"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-user-times fa-fw mr-1"></div>
+                        <span>Not Married</span>
+                    </div>
+                    <div t-if="staff.s_email" title="Email Address"
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-envelope fa-fw mr-1"></div>
+                        <a t-att-href="'mailto:'+staff.s_email" t-esc="staff.s_email"/>
+                    </div>
+                    <div t-if="staff.s_mob" title="Mobile No."
+                         class="d-flex flex-nowrap align-items-center mb-1">
+                        <div class="fa fa-phone fa-fw mr-1"></div>
+                        <span t-esc="staff.s_mob"/>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="doctor_sort" name="Doctor Sort-by Template">
+        <div class="dropdown">
+            <a href="#" t-attf-class="dropdown-toggle btn btn-{{navClass}}"
+               data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">sort by
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" role="menu">
+
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_asc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=create_date_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Oldest Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_desc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=create_date_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Recent Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'name_asc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=name_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Name (A-Z)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_asc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=age_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Youngest To Oldest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_desc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=age_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Oldest To Youngest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'salary_asc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=salary_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Salary (Lowest To Highest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'salary_desc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=salary_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Salary (Highest To Lowest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'rating_desc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=rating_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Ratings (5-0)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'rating_asc' else '' }}">
+                    <a t-att-href="'/hospital/doctors?sortby=rating_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Ratings (0-5)
+                    </a>
+                </li>
+
+                <!-- Add more sorting options as needed -->
+            </ul>
+        </div>
+        <!--        <div t-attf-class="o_sortby_dropdown dropdown dropdown_sorty_by {{_classes}}">-->
+        <!--            <small class="d-none d-lg-inline text-muted">Sort By:</small>-->
+        <!--            &lt;!&ndash;&ndash;&gt;-->
+        <!--            <a href="#" t-attf-class="dropdown-toggle btn btn-{{navClass}}"-->
+        <!--               data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">-->
+        <!--            </a>-->
+        <!--            <ul class="dropdown-menu dropdown-menu-end" role="menu">-->
+        <!--                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date' else '' }}">-->
+        <!--                    <a t-set="sortby" t-value="create_date"-->
+        <!--                    >   Create Date-->
+        <!--                        <t t-esc="sort_by['create_date']['label']"/>-->
+        <!--                    </a>-->
+        <!--                </li>-->
+        <!--                <li t-attf-class="dropdown-item {{ 'active' if sort_by == 'doctor' else '' }}">-->
+        <!--                    <a href="#" t-att-data-sortby="'doctor'">Name</a>-->
+        <!--                </li>-->
+        <!--                <li t-attf-class="dropdown-item {{ 'active' if sort_by == 'd_id' else '' }}">-->
+        <!--                    <a href="#" t-att-data-sortby="'d_id'">Doctor ID</a>-->
+        <!--                </li>-->
+        <!--                &lt;!&ndash; Add more sorting options as needed &ndash;&gt;-->
+        <!--            </ul>-->
+        <!--            &lt;!&ndash;            helllp&ndash;&gt;-->
+        <!--            &lt;!&ndash;            <a role="button" href="#" t-attf-class="dropdown-toggle btn btn-{{navClass}}" data-bs-toggle="dropdown">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <span class="d-none d-lg-inline">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <t t-if="isSortingBy" t-out="isSortingBy[0][1]"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <span t-else="1" t-field="website.shop_default_sort"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                </span>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <i class="fa fa-sort-amount-asc d-lg-none"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            </a>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            <div class="dropdown-menu dropdown-menu-end" role="menu">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <t t-foreach="website_sale_sortable" t-as="sortby">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <a role="menuitem" rel="noindex,nofollow" t-att-href="keep('/hospital/doctors', order=sortby[0])"&ndash;&gt;-->
+        <!--            &lt;!&ndash;                       class="dropdown-item">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                        <span t-out="sortby[1]"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    </a>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                </t>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            </div>&ndash;&gt;-->
+        <!--        </div>-->
+    </template>
+
+    <!--Staff Groups-->
+    <template id="staff_groups" inherit_id="as_hospital.staff_page"
+              active="False"
+              customize_show="True" name="Staff Speciality">
+        <xpath expr="//div[@id='div_staff_page_groups']" position="before">
+            <t t-set="enable_groups" t-value="True"/>
+        </xpath>
+        <xpath expr="//div[@id='div_staff_page_groups']" position="inside">
+            <button type="button" class="btn btn-link d-lg-none"
+                    data-bs-target="#staff_speciality_collapse" data-bs-toggle="collapse"
+                    aria-expanded="false" aria-controls="staff_speciality_collapse">
+                Show Specialities
+            </button>
+            <div class="collapse d-lg-block" id="staff_speciality_collapse">
+                <ul class="nav nav-pills flex-column mb-2">
+                    <li class="nav-item">
+                        <a t-att-href="'/hospital/staff?list_view=%s' % request.params.get('list_view', '')"
+                           t-attf-class="nav-link #{'' if speciality else 'active'} o_not_editable">
+                            All Staff
+                        </a>
+                    </li>
+                    <t t-foreach="groups" t-as="group">
+                        <li class="nav-item">
+                            <a t-att-href="'/hospital/staff/speciality/%s?list_view=%s' % (slug(group), request.params.get('list_view', ''))"
+                               t-attf-class="nav-link #{'active' if group == speciality else ''}
+                                o_not_editable">
+                                <span t-field="group.name"/>
+                            </a>
+                        </li>
+                    </t>
+                    <t t-foreach="groups2" t-as="group2">
+                        <li class="nav-item">
+                            <a t-att-href="'/hospital/staff/speciality/%s' %slug(group2)"
+                               t-attf-class="nav-link #{'active' if group2 == speciality2 else ''}
+                                o_not_editable">
+                                <span t-field="group2.name"/>
+                            </a>
+                        </li>
+                    </t>
+                </ul>
+            </div>
+        </xpath>
+    </template>
+
+
+    <template id="staff_sort" name="Staff Sort-by Template">
+        <div class="dropdown">
+            <a href="#" t-attf-class="dropdown-toggle btn btn-{{navClass}}"
+               data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">sort by
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" role="menu">
+
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_asc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=create_date_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Oldest Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_desc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=create_date_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Recent Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'name_asc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=name_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Name (A-Z)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_asc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=age_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Youngest To Oldest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_desc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=age_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Oldest To Youngest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'salary_asc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=salary_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Salary (Lowest To Highest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'salary_desc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=salary_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Salary (Highest To Lowest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'rating_desc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=rating_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Ratings (5-0)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'rating_asc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=rating_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Ratings (0-5)
+                    </a>
+                </li>
+
+                <!-- Add more sorting options as needed -->
+            </ul>
+        </div>
+    </template>
+
+    <template id="nurse_sort" name="Nurse Sort-by Template">
+        <div class="dropdown">
+            <a href="#" t-attf-class="dropdown-toggle btn btn-{{navClass}}"
+               data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">sort by
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" role="menu">
+
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_asc' else '' }}">
+                    <a t-att-href="'/hospital/nurses?sortby=create_date_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Oldest Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_desc' else '' }}">
+                    <a t-att-href="'/hospital/nurses?sortby=create_date_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Recent Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'name_asc' else '' }}">
+                    <a t-att-href="'/hospital/nurses?sortby=name_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Name (A-Z)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_asc' else '' }}">
+                    <a t-att-href="'/hospital/nurses?sortby=age_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Youngest To Oldest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_desc' else '' }}">
+                    <a t-att-href="'/hospital/nurses?sortby=age_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Oldest To Youngest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'salary_asc' else '' }}">
+                    <a t-att-href="'/hospital/nurses?sortby=salary_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Salary (Lowest To Highest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'salary_desc' else '' }}">
+                    <a t-att-href="'/hospital/nurses?sortby=salary_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Salary (Highest To Lowest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'rating_desc' else '' }}">
+                    <a t-att-href="'/hospital/staff?sortby=rating_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Ratings (5-0)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'rating_asc' else '' }}">
+                    <a t-att-href="'/hospital/nurses?sortby=rating_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Ratings (0-5)
+                    </a>
+                </li>
+
+                <!-- Add more sorting options as needed -->
+            </ul>
+        </div>
+    </template>
+
+    <template id="patient_sort" name="Patient Sort-by Template">
+        <div class="dropdown">
+            <a href="#" t-attf-class="dropdown-toggle btn btn-{{navClass}}"
+               data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">sort by
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" role="menu">
+
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_asc' else '' }}">
+                    <a t-att-href="'/hospital/patients?sortby=create_date_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Oldest Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_desc' else '' }}">
+                    <a t-att-href="'/hospital/patients?sortby=create_date_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Recent Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'name_asc' else '' }}">
+                    <a t-att-href="'/hospital/patients?sortby=name_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Name (A-Z)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_asc' else '' }}">
+                    <a t-att-href="'/hospital/patients?sortby=age_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Youngest To Oldest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_desc' else '' }}">
+                    <a t-att-href="'/hospital/patients?sortby=age_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Oldest To Youngest)
+                    </a>
+                </li>
+                <!-- Add more sorting options as needed -->
+            </ul>
+        </div>
+    </template>
+
+    <template id="case_sort" name="Case Sort-by Template">
+        <div class="dropdown">
+            <a href="#" t-attf-class="dropdown-toggle btn btn-{{navClass}}"
+               data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">sort by
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" role="menu">
+
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_asc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=create_date_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Oldest Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'create_date_desc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=create_date_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Recent Records
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'name_asc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=name_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Name (A-Z)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_asc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=age_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Youngest To Oldest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'age_desc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=age_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Age (Oldest To Youngest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'total_asc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=total_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Total Charge (Lowest To Highest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'total_desc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=total_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Total Charge (Highest To Lowest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'progress_asc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=progress_asc&amp;list_view=' + request.params.get('list_view', '')">
+                        Progress Rate (Lowest To Highest)
+                    </a>
+                </li>
+                <li t-attf-class="dropdown-item {{ 'active' if sortby == 'progress_desc' else '' }}">
+                    <a t-att-href="'/hospital/cases?sortby=progress_desc&amp;list_view=' + request.params.get('list_view', '')">
+                        Progress Rate (Highest To Lowest)
+                    </a>
+                </li>
+
+                <!-- Add more sorting options as needed -->
+            </ul>
+        </div>
+    </template>
+
+</odoo>

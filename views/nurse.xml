@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Doctor Form View-->
+    <record id="view_hospital_nurse_form" model="ir.ui.view">
+        <field name="name">hospital.nurse.form</field>
+        <field name="model">hospital.nurse</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+
+                    <widget name="web_ribbon" title="Fired" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+
+                        <div style="text-align:left">
+                            <h1>
+                                <field name="name" help="Enter your name here."
+                                       placeholder="ENTER YOUR NAME"
+                                       nolabel="1" size="100"/>
+                            </h1>
+                            <br/>
+                            <field name="n_id"/>
+                            <field name="rating" widget="priority"/>
+
+                            <field name="active" invisible="1"/>
+                            <field name="specialist" widget="many2many_tags" string="Speciality"/>
+                            <field name="n_gender" required="1" placeholder='Choose Your Gender:'/>
+                        </div>
+
+                        <div style="text-align:right;">
+                            <field name="n_image" widget="image" class="oe_avatar"
+                                   style="height:500px,width:500px" nolabel="1"/>
+                        </div>
+
+                        <separator/>
+
+                        <group>
+                            <field name="n_dob"/>
+                            <field name="n_age"/>
+                            <field name="exp"/>
+                            <field name="designation"/>
+                            <field name="qualifications"/>
+                            <field name="joining_date"/>
+                            <field name="leaving_date"
+                                   invisible="active==True"
+                                   readonly="active==False"
+                            />
+                        </group>
+                        <group>
+                            <field name="n_email" widget="email"/>
+                            <field name="n_mob" widget="phone"/>
+                            <field name="salary" string="Salary"/>
+                            <field name="info"/>
+                            <field name="is_married"/>
+                        </group>
+                    </group>
+                </sheet>
+
+                <!--                <div class="oe_chatter">-->
+                <!--                    <field name="message_follower_ids"/>-->
+                <!--                    <field name="message_ids" options="{'post_refresh': 'recipients'}"/>-->
+                <!--                </div>-->
+
+            </form>
+        </field>
+    </record>
+
+    <!-- Nurse   Kanban View-->
+    <record id="view_hospital_nurse_kanban" model="ir.ui.view">
+        <field name="name">hospital.nurse.kanban</field>
+        <field name="model">hospital.nurse</field>
+        <field name="arch" type="xml">
+            <kanban>
+
+                <template>
+                    <t t-name="kanban-box">
+
+                        <field name="n_image" widget="image" nolabel="1"/>
+
+                        <div class="oe_kanban_global_click">
+                            <div>
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="n_id"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>Age:
+                                    <field name="n_age"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>Gender:
+                                    <field name="n_gender"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="designation" widget="badge"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="specialist" widget="many2many_tags"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="exp"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="salary"/>
+                                </span>
+                            </div>
+                            <div>
+                                <span>
+                                    <field name="rating" widget="priority"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </template>
+
+            </kanban>
+        </field>
+    </record>
+    <!--Nurse Tree View-->
+    <record id="view_hospital_nurse_tree" model="ir.ui.view">
+        <field name="name">hospital.nurse.tree</field>
+        <field name="model">hospital.nurse</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" optional="show"/>
+                <field name="n_id" optional="show" widget="handle"/>
+                <field name="n_email" optional="hide" widget="email"/>
+                <field name="n_mob" optional="hide" widget="phone"/>
+                <field name="n_gender" optional="show"/>
+                <field name="n_image" optional="hide"/>
+                <field name="n_dob" optional="hide"/>
+                <field name="n_age" optional="show"/>
+                <field name="exp" optional="hide"/>
+                <field name="designation" optional="show"/>
+                <field name="qualifications" optional="hide"/>
+                <field name="salary" string="Salary" optional="hide"/>
+                <field name="info" optional="hide"/>
+                <field name="is_married" optional="hide"/>
+                <field name="joining_date" optional="show"/>
+                <field name="leaving_date" optional="hide"/>
+                <field name="rating" optional="show" widget="priority"/>
+
+            </tree>
+        </field>
+    </record>
+
+    <!--  doctors Search View-->
+    <record id="view_hospital_nurse_search" model="ir.ui.view">
+        <field name="name">hospital.nurse.search</field>
+        <field name="model">hospital.nurse</field>
+        <field name="arch" type="xml">
+            <search string="Search Nurses">
+                <field name="name" filter_domain="['|',('name','ilike',self),('n_age','ilike',self)]"/>
+                <field name="n_age" filter_domain="[('n_age','>',self)]"/>
+                <field name="specialist" filter_domain="[('specialist','ilike',self)]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <filter string="Male" name="male" domain="[('n_gender','=','male')]"/>
+                <filter string="Female" name="female" domain="[('n_gender','=','female')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Gender" name="n_gender" context="{'group_by':'n_gender'}"/>
+                    <filter string="Speciality" name="specialist" context="{'group_by':'specialist'}"/>
+                </group>
+                <searchpanel>
+                    <field name="designation" string="Designation"
+                           enable_counters="1" icon="fa-user"
+                           color="red" expand="1"
+                           select="one"/>
+                    <field name="n_gender" enable_counters="1" icon="fa-male"
+                           select="multi"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+
+    <!-- Nurse Record-->
+    <record id="action_hospital_nurse" model="ir.actions.act_window">
+        <field name="name">Nurses</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.nurse</field>
+        <field name="context">{'search_default_n_gender':1}</field> <!--Adding default filter-->
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+
+    <!-- Nurse Menu-->
+    <menuitem id="menu_nurses"
+              name="Nurses"
+              parent="menu_staff"
+              action="action_hospital_nurse"
+              sequence="30"
+              groups="group_hospital_nurse,group_hospital_manager"
+    />
+
+
+</odoo>

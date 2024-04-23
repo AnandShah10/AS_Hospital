@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="view_search_case_form" model="ir.ui.view">
+        <field name="name">search.case.wizard.form</field>
+        <field name="model">search.case.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Search Case">
+                <group>
+                    <field name="name" options="{'no_create_edit': True}"/>
+                    <field name="c_ids"/>
+                </group>
+                <footer>
+                    <button name="action_search_case" string="Search"
+                            icon='fa-search' type="object" class="btn-primary"/>
+                    <button name="action_search_by_case_id" string="Search By Case ID"
+                            type="object" class="btn-primary"/>
+                    <button name="action_search_by_patient_name" string="Search BY Patient Name"
+                            type="object" class="btn-primary"/>
+                    <button name="print_case_report" string="Print Report"
+                            type="object" class="btn-primary" icon="fa-print"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id='action_search_case_wizard' model="ir.actions.act_window">
+        <field name="name">Search Case</field>
+        <field name="res_model">search.case.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_search_case_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

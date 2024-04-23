@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="check_case_state_cronjob" model="ir.cron">
+            <field name="name">Check Case Status</field>
+            <field name="model_id" ref="model_hospital_case"/>
+            <field name="state">code</field>
+            <field name="code">model.check_state()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">1</field>
+        </record>
+         <record id="check_appointment_date_cronjob" model="ir.cron">
+            <field name="name">Check Appointment Date</field>
+            <field name="model_id" ref="model_hospital_appointment"/>
+            <field name="state">code</field>
+            <field name="code">model.check_date()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">1</field>
+        </record>
+    </data>
+</odoo>

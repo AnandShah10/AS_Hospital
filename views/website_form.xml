@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="menu_patient_form" model="website.menu">
+        <field name="name">Create Patient</field>
+        <field name="url">/create_patient_form</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">30</field>
+    </record>
+    <record id="staff_menu" model="website.menu">
+        <field name="name">Staff</field>
+        <field name="url">/hospital/staff</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">19</field>
+    </record>
+    <record id="doctor_menu" model="website.menu">
+        <field name="name">Doctor</field>
+        <field name="url">/hospital/doctors</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">20</field>
+    </record>
+    <record id="nurse_menu" model="website.menu">
+        <field name="name">Nurse</field>
+        <field name="url">/hospital/nurses</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">21</field>
+    </record>
+
+    <record id="patient_menu" model="website.menu">
+        <field name="name">Patient</field>
+        <field name="url">/hospital/patients</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">10</field>
+    </record>
+
+    <record id="case_menu" model="website.menu">
+        <field name="name">Case</field>
+        <field name="url">/hospital/cases</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">11</field>
+    </record>
+
+    <template id="create_patient_form">
+        <t t-call="website.layout">
+            <div class="wrap">
+                <div class="oe_structure">
+                    <div class="container">
+                        <form role="form" action="/create_patient" method="POST"
+                              enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <!--                            <input type="hidden" name="token" t-att-value="answer.access_token"/>-->
+                            <div class="o_survey_error alert alert-danger d-none" role="alert">
+                                <p>There was an error during the validation of the info.</p>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="control-label">Name</label>
+                                <input type="text" name="name" class="form-control"
+                                       required="required" t-att-value="name" placeholder="eg. John Doe"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="dob" class="control-label">Date Of Birth</label>
+                                <input type="date" name="dob" class="form-control"
+                                       required="required" t-att-value="dob"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender" class="control-label">Gender</label>
+                                <select name="gender" class="form-control link-style">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="others">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="blood_group" class="control-label">Blood Group</label>
+                                <input type="text" name="blood_group" class="form-control"
+                                       required="required" t-att-value="blood_group"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="control-label">Email Address</label>
+                                <input type="email" name="email" class="form-control"
+                                       t-att-value="email"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="image" class="control-label">Image</label>
+                                <input type="file" name="image" class="form-control"
+                                       t-att-value="image"
+                                       multiple="true" data-show-upload="true"
+                                       data-show-caption="true" data-show-preview="true"
+                                       accept="image/*"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="mobile_no" class="control-label">Mobile No.</label>
+                                <input type="text" name="mobile_no" class="form-control"
+                                       required="required" t-att-value="mobile_no"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="country" class="control-label">Country</label>
+                                <select name="country" class="form-control link-style">
+                                    <t t-foreach="country_rec" t-as="country">
+                                        <option t-esc="country.name" t-att-value="country.id"/>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="clearfix oe_login_buttons">
+                                <button type="submit" class="btn btn-primary pull-left">
+                                    Submit
+                                </button>
+                            </div>
+                            <!--                            <div class="form-group">-->
+                            <!--                                <label for="state" class="control-label">State</label>-->
+                            <!--                                <br/>-->
+                            <!--                                <select name="state" id="state_select" class="form-control link-style">-->
+                            <!--                                    <option disabled="1" selected="1" style="display:none;">Select State-->
+                            <!--                                    </option> &lt;!&ndash; Hidden default option &ndash;&gt;-->
+                            <!--                                </select>-->
+                            <!--                            </div>-->
+
+                            <!--                            <script>-->
+                            <!--                                function getStates(countryId) {-->
+                            <!--                                fetch('/get_states/' + countryId)-->
+                            <!--                                .then(response => response.json())-->
+                            <!--                                .then(data => {-->
+                            <!--                                const stateSelect = document.getElementById('state_select');-->
+                            <!--                                stateSelect.innerHTML = ''; // Clear previous options-->
+                            <!--                                data.forEach(state => {-->
+                            <!--                                const option = document.createElement('option');-->
+                            <!--                                option.value = state.id;-->
+                            <!--                                option.textContent = state.name;-->
+                            <!--                                stateSelect.appendChild(option);-->
+                            <!--                                });-->
+                            <!--                                })-->
+                            <!--                                .catch(error => console.error('Error fetching states:', error));-->
+                            <!--                                }-->
+                            <!--                            </script>-->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <record id="patient_submit_success" model="website.page">
+        <field name="name">Submitted Successfully</field>
+        <field name="type">qweb</field>
+        <field name="url">/patient-submit-success</field>
+        <field name="website_indexed" eval="False"/>
+        <field name="is_published">True</field>
+        <field name="key">as_hospital.patient_submit_success</field>
+        <field name="arch" type="xml">
+            <t name="Submitted" t-name="as_hospital.patient_submit_success">
+                <t t-call="website.layout">
+                    <div id="wrap" class="oe_structure oe_empty">
+                        <section class="s_text_block pt40 pb40 o_colored_level " data-snippet="s_text_block">
+                            <div class="container s_allow_columns">
+                                <div class="row">
+                                    <div class="col-lg-7 col-xl-6 me-lg-auto">
+                                        <span class="d-block fa fa-4x fa-thumbs-up mx-auto rounded-circle bg-primary"/>
+                                        <br/>
+                                        <h1 class="text-center">Thank You!</h1>
+                                        <div class="pb16 pt16 s_hr" data-snippet="s_hr" data-name="Separator">
+                                            <hr class="mx-auto border-top w-50 border-dark text-center"/>
+                                        </div>
+                                        <h5 class="text-center">
+                                            <span class="fa fa-check-circle"/>
+                                            <span>Your Info Has Submitted
+                                                <b>successfully</b>
+                                            </span>
+                                        </h5>
+                                        <p class="text-center">We will get back to you shortly.</p>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <ul class="list-unstyled mb-0 ps-2">
+                                            <li>Caret IT</li>
+                                            <li>
+                                                <i class="fa fa-map-marker fa-fw me-2"/>
+                                                <span class="o_force_ltr">Caret IT - 501, Pratik Mall</span>
+                                            </li>
+                                            <li>
+                                                <i class="fa fa-phone fa-fw me-2"/>
+                                                <span class="o_force_ltr">+91 93168 53376</span>
+                                            </li>
+                                            <li>
+                                                <i class="fa fa-1x fa-fw fa-envelope me-2"/>
+                                                <span>sales@caretit.com</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <input t-if='website.plausible_shared_key' type='hidden' class='js_plausible_push'
+                           data-event-name='Lead Generation' data-event-params='{"CTA": "Contact Us"}'/>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <template id="website_sale_inherit" inherit_id="website_sale.products_item">
+        <xpath expr="//span[@class='h6 mb-0']" position="attributes">
+                       <attribute name="t-attf-class">#{'d-none' if (request.uid==4 or request.env.user.price_visible==False) else 'd-inline fw-bold'}</attribute>
+        </xpath>
+        <!--        <xpath expr="//span[@class='h6 mb-0']" position="replace">-->
+        <!--            <t t-if="request.uid == 4">-->
+        <!--                <span class="h6 mb-0" t-if="template_price_vals['price_reduce'] or not website.prevent_zero_price_sale"-->
+        <!--                      t-esc="template_price_vals['price_reduce']"-->
+        <!--                      t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"-->
+        <!--                      style="display:none;"-->
+        <!--                />-->
+        <!--            </t>-->
+        <!--            <t t-else="">-->
+        <!--                <span class="h6 mb-0" t-if="template_price_vals['price_reduce'] or not website.prevent_zero_price_sale"-->
+        <!--                      t-esc="template_price_vals['price_reduce']"-->
+        <!--                      t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>-->
+        <!--            </t>-->
+        <!--        </xpath>-->
+    </template>
+    <template inherit_id="website_sale.product" id="website_product_inherit">
+        <xpath expr="//a[@t-attf-class='btn btn-primary js_check_product a-submit flex-grow-1']" position="replace">
+            <t t-if="request.uid == 4">
+                <a role="button" id="log_in_button"
+                   t-attf-class="btn btn-primary flex-grow-1" href="/web/login">
+                    <i class="fa fa-sign-in me-2"/>
+                    LogIn
+                </a>
+            </t>
+            <t t-if="request.uid != 4">
+                <a data-animation-selector=".o_wsale_product_images" role="button" id="add_to_cart"
+                   t-attf-class="btn btn-primary js_check_product a-submit flex-grow-1" href="#">
+                    <i class="fa fa-shopping-cart me-2"/>
+                    Add to cart
+                </a>
+            </t>
+        </xpath>
+        <xpath expr="//div[@class='js_product js_main_product mb-3']//div" position="attributes">
+            <attribute name="t-attf-class">#{'d-none' if (request.env.user._is_public() or request.env.user.price_visible==False) else 'd-inline fw-bold'}</attribute>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_payment">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .watermark {
+
+                            position: absolute;
+
+                            opacity:0.2;
+
+                            font-size:100px;
+
+                            width:50%;
+
+                            text-align:center;
+
+                            z-index:99;
+
+                            border: 2px solid black;
+
+                            -webkit-transform: rotate(-30deg);
+
+                            }
+                        </style>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h2 style="text-align: center;">Case Bill Receipt</h2>
+                                <div style="border: 2px solid #000; padding: 10px; margin-bottom: 20px;">
+                                    <p>
+                                        <strong>Bill ID:</strong>
+                                        <span t-field="o.bill_id"/>
+                                    </p>
+                                    <p>
+                                        <strong>Case ID:</strong>
+                                        <span t-field="o.c_id"/>
+                                    </p>
+                                    <p>
+                                        <strong>Patient Name:</strong>
+                                        <span t-field="o.p_name"/>
+                                    </p>
+                                    <p t-if="o.is_admitted">
+                                        <strong>Admission Date:</strong>
+                                        <span t-field="o.admission_date"/>
+                                    </p>
+                                    <p t-if="o.is_admitted and (state!='2' or state!='3')">
+                                        <strong>Discharge Date:</strong>
+                                        <span t-field="o.discharge_date"/>
+                                    </p>
+                                </div>
+                                <table class="table" style="width: 100%;"
+                                       t-if="o.prescription_ids">
+                                    <thead>
+                                        <tr>
+                                            <th>Prescription</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.prescription_ids" t-as="prescription">
+                                            <td>
+                                                <span t-field="prescription.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="prescription.quant"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="prescription.price"/>
+                                            </td>
+                                            <td>
+                                                <t t-esc="prescription.total"/>
+                                                <!--                                    <span t-field="prescription.total"-->
+                                                <!--                                          t-options="{'widget': 'monetary', 'currency': prescription.currency.id}"/>-->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <hr style="border: 1px solid #000;"/>
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td colspan="3" class="text-right">
+                                            <strong>Fees:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.fees"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-right">
+                                            <strong>Fee Tax:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.fee_tax"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td colspan="3" class="text-right">
+                                            <strong>Total Fees:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.total_fee"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.is_admitted">
+                                        <td colspan="3" class="text-right">
+                                            <strong>Room Type:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.room_type"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr t-if="o.is_admitted">
+                                        <td colspan="3" class="text-right">
+                                            <strong>Duration (Days):</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.duration"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.is_admitted">
+                                        <td colspan="3" class="text-right">
+                                            <strong>Room Price (per Day):</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.room_price"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.is_admitted">
+                                        <td colspan="3" class="text-right">
+                                            <strong>Room Tax:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.room_tax"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.is_admitted">
+                                        <td colspan="3" class="text-right">
+                                            <strong>Total Room Charge:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.total_room_charge"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.is_admitted">
+                                        <td colspan="3" class="text-right">
+                                            <strong>Total Charge:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.total_charge"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <hr style="border: 1px solid #000;"/>
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="text-align: right; padding-right: 10px;">
+                                            <strong>Subtotal:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.total_price"
+                                                  t-options="{'widget': 'monetary', 'currency': o.currency.id}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: right; padding-right: 10px;">
+                                            <strong>Tax (18%):</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.tax_total"
+                                                  t-options="{'widget': 'monetary', 'currency': o.currency.id}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: right; padding-right: 10px;">
+                                            <strong>Total:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.final_total"
+                                                  t-options="{'widget': 'monetary', 'currency': o.currency.id}"/>
+                                        </td>
+                                    </tr>
+                                </table>
+<!--                                <p style="margin-top: 20px;">-->
+<!--                                    <strong>Payment Status:</strong>-->
+<!--                                    <span t-if="o.is_paid">Paid</span>-->
+<!--                                    <span t-if="not o.is_paid">Unpaid</span>-->
+<!--                                </p>-->
+                                <div class="watermark" style="top: 600px; right: 230px;">
+                                    <span t-if="o.is_paid" style="color:green;">Paid</span>
+                                    <span t-if="not o.is_paid" style="color:red;">Due</span>
+                                    <br/>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
