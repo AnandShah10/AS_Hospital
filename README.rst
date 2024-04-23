@@ -23,7 +23,7 @@ Installation
 
     .. code-block:: bash
 
-        git clone <repository_url> /path/to/odoo/addons/as_hospital
+        git clone https://github.com/AnandShah10/AS_Hospital.git /path/to/odoo/addons/as_hospital
 
 2. Restart the Odoo server to load the new module.
 
