@@ -303,6 +303,17 @@ class HospitalPatient(models.Model):
     #                                                   orderby='age desc', limit=2, offset=1)
     #     print(obj)
 
+    #Display Name
+    @api.depends('name', 'p_id')
+    def _compute_display_name(self):
+        """
+                Changing display name as product_name
+        """
+        super(HospitalPatient, self)._compute_display_name()
+        for i in self:
+            if i.name and i.p_id:
+                i.display_name = i.name + '[' + i.p_id + ']'
+
     # Age validation
     @api.constrains('is_child', 'age')
     def _check_child_age(self):
