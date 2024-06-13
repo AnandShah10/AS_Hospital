@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-inherit="web.ListView" t-inherit-mode="extension">
+        <xpath expr="//div[@t-if='nbSelected']" position="inside">
+            <button type="button"
+                    class="btn btn-primary" id="case_print"
+                    t-on-click="onClick">
+                        Archive Cases
+            </button>
+        </xpath>
+    </t>
+</templates>

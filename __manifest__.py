@@ -20,6 +20,7 @@ My Hospital module
         'wizard/search_case.xml',
         'wizard/archive_case.xml',
         'wizard/print_case.xml',
+        'wizard/archive_selected_cases.xml',
         'data/case_email_template.xml',
         'data/appointment_email_template.xml',
         'data/payment_acceptance_email.xml',
@@ -57,4 +58,10 @@ My Hospital module
     'installable': True,
     'application': True,
     'license': 'LGPL-3',
+    'assets':{
+        'web.assets_backend':[
+            'as_hospital/static/src/xml/list_controller.xml',
+            'as_hospital/static/src/js/list_controller.js',
+        ],
+    },
 }

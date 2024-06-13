@@ -304,6 +304,7 @@
                   decoration-muted="state == '6'"
                   decoration-primary="state == '2'">
                 <field name="c_id" optional="show" widget="handle"/>
+                <field name="c_id" optional="show"/>
                 <field name="c_notes" optional="hide"/>
                 <field name="m_notes" optional="hide"/>
                 <field name="criticality" optional="show"/>

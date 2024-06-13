@@ -55,5 +55,6 @@ access_cancel_case_wizard,access.cancel.case.wizard,model_cancel_case_wizard,bas
 access_search_case_wizard,access.search.case.wizard,model_search_case_wizard,base.group_user,1,1,1,1
 access_archive_case_wizard,access.archive.case.wizard,model_archive_case_wizard,base.group_user,1,1,1,1
 access_print_case_wizard,access.print.case.wizard,model_print_case_wizard,base.group_user,1,1,1,1
+access_archive_cases_wizard,access.archive.cases.wizard,model_archive_cases_wizard,base.group_user,1,1,1,1
 
 as_hospital.access_state_city,access_state_city,as_hospital.model_state_city,base.group_user,1,1,1,1
